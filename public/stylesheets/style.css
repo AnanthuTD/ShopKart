@@ -1,0 +1,267 @@
+html {
+  overflow: -moz-scrollbars-vertical; 
+  overflow-y: scroll;
+}
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+body{
+  margin: 0;
+  font-family: Roboto,Arial,sans-serif!important;
+  letter-spacing: 0!important;
+  font-size: 14px!important;
+  line-height: 1.4!important;
+}
+header a{
+  text-decoration: none!important;
+  color: white!important;
+  -webkit-text-stroke: thin
+}
+.blue{
+  color: #2874DF;  
+  padding-right: 10px;
+}
+.nav{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #2874DF;
+  margin: 0;
+  padding: 10px;
+}
+.nav img{
+  width: 80px;
+  margin-right: 10px;
+}
+.search{
+  display: flex;
+  justify-content: left;
+  align-items: center;
+}
+.search input[type="text"]{
+  border: none;
+  box-shadow: 0 2px 4px 0 rgb(0 0 0 / 23%);
+  width: -webkit-fill-available;
+  height: 35px;
+  padding-left: 15px;
+  padding-right: 15px;
+  border-top-left-radius: 3px;
+  border-bottom-left-radius: 3px;
+}
+.search input[type="text"]:focus{
+  outline: none;
+}
+.search button[type="submit"]{
+  border: none;
+  height: 35px;
+  background-color: white;
+  color: #2874DF;
+  font-size: larger;
+  -webkit-text-stroke: thin;
+  border-top-right-radius: 3px;
+  border-bottom-right-radius: 3px;
+}
+#login{
+  display: flex;
+  justify-content: center;
+}
+#login button[type="button"]{
+  border: none;
+  box-shadow: 0 2px 4px 0 rgb(0 0 0 / 23%);
+  width: -webkit-fill-available;
+  height: 30px;
+  color: #2874DF;
+  -webkit-text-stroke: thin;
+ margin-inline: 40px;
+ border-radius: 3px;
+ font-weight: 500;
+}
+input#more{
+  width: 45px;
+  color: white;
+  background: "More";
+}
+.blank_row
+{
+  height: 18px !important; /* overwrites any other rules */
+  display: flex;
+  justify-content: center;
+  width: 40%;
+  margin-left: 30%;
+}
+#login-table{
+  position: absolute;
+  top: 37px;
+  display: none;
+  padding-left: 12px;
+  padding-right: 12px;
+  z-index: 5;
+}
+#login-btn:hover + #login-table{
+  display: block;
+}
+#login-table:hover{
+  display: block;
+}
+#more{
+  display: flex;
+  justify-content: center;
+}
+.down-arrow{
+  color: white;
+  margin-inline: 10px;
+  display: flex;
+  align-items: center;
+}
+.up-arrow{
+  color: white;
+  margin-inline: 10px;
+  display: flex;
+  align-items: center;
+  display: none;
+}
+#more-table{
+  position: absolute;
+  top: 37px;
+  display: none;
+  z-index: 5;
+  /* right: 14.5%; */
+}
+table, th, td#more-table, #login-table{
+  border: none;
+  border-collapse: inherit;
+}
+tr {
+  border-bottom: 0.1px solid!important;
+  border-color: rgb(235, 234, 234)!important;
+  padding-inline: 5px;
+  height: 50px;
+}
+table#table{
+  background-color: white!important;
+  border-radius: 3%;
+  box-shadow: 0 2px 4px 0 rgb(0 0 0 / 23%); 
+}
+#table td{
+  padding-inline: 20px;
+}
+#more-label:hover + #more-table{
+  display: block;
+}
+#more-label:hover .up-arrow{
+  display: block;
+}
+#more-label:hover .down-arrow{
+  display: none;
+}
+#more-table:hover{
+  display: block;
+}
+table#blank_row {
+  width: 30px;
+  margin-left: 40%;
+}
+
+div#catagory{
+  box-shadow: 0 2px 4px 0 rgb(0 0 0 / 23%);
+}
+div#category_intern_row{
+  font-weight: 500;
+  color: #000;
+}
+.catagory_dropdown{
+  background-color: white;
+  height: 550px;
+  width: inherit;
+  border-radius: 3px;
+  margin-top: 0.52rem;
+  padding: 10px;
+  box-shadow: 0 2px 4px 0 rgb(0 0 0 / 23%);
+  border-radius: 3px;
+  display: none;
+  z-index: 5;
+}
+.catagory_dropdown table{
+  height: 102%;
+  width: 100%;
+  background-color: white;
+}
+.even{
+  background-color: white;
+}
+.odd{
+  background-color: whitesmoke;
+}
+#category_intern_row div:hover{
+  color: #2874DF;
+}
+#category_intern_row div{
+ align-items: center;
+}
+#category_intern_row i{
+  color: #c6c6c7;
+  -webkit-text-stroke: medium;
+}
+#category_intern_row div:hover i{
+  color: #2874DF;
+}
+.el:hover .down-arrow{
+  display: none;
+}
+.el:hover .up-arrow{
+  display: block;
+}
+
+.tv:hover .down-arrow{
+  display: none;
+}
+.tv:hover .up-arrow{
+  display: block;
+}
+
+.kids:hover .down-arrow{
+  display: none;
+}
+.kids:hover .up-arrow{
+  display: block;
+}
+.men:hover .down-arrow{
+  display: none;
+}
+.men:hover .up-arrow{
+  display: block;
+}
+
+.women:hover .down-arrow{
+  display: none;
+}
+.women:hover .up-arrow{
+  display: block;
+}
+
+.home:hover .down-arrow{
+  display: none;
+}
+.home:hover .up-arrow{
+  display: block;
+}
+.sports:hover .down-arrow{
+  display: none;
+}
+.sports:hover .up-arrow{
+  display: block;
+}
+
+
+#phone{
+  padding: 10px;
+}
+#phone .col-4{
+  padding-right: 10px;
+  padding-left: 0;
+}
+#phone .card{
+  width: 100%;
+  height: fit-content;
+}
