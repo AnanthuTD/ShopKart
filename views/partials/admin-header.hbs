@@ -1,7 +1,11 @@
+
 <header class="row nav">
+    <div class="col-1 ms-0">
+        <button type="button" class="btn btn-light"><i class="bi bi-list text-primary"></i></button>
+    </div>
     <div class="search col-5 pe-0">
         <a href="">
-            <img src="/images/flipkart-logo.png" alt="">
+            <img src="/images/flipkart-logo.png" alt=""/>
             Admin
         </a>
         <input type="text" id="form1" placeholder="Search" />
@@ -11,7 +15,7 @@
     </div>
     <div class="col-2" id="login">
         <button type="button" id="login-btn" class="p-0">Login</button>
-        <div id="login-table" class="">
+        <div id="login-table">
             <div class="blank_row" id="login-blank">
                 <i class="bi bi-caret-up-fill text-white mx-auto"></i>
             </div>
@@ -84,7 +88,52 @@
             </div>
         </div>
         <div class="me-5">
-            <a href="" class=""><i class="bi bi-cart3"></i>&emsp;Cart</a>
+            <a href="/admin/user">&emsp;user</a>
         </div>
     </div>
 </header>
+
+{{!-- side bar --}}
+
+<link rel="stylesheet" href="/stylesheets/side-bar.css"/>
+<div class="d-flex full-height">
+    <div class="side expanded">
+        <ul class="nav justify-content-center" id="menu">
+            <a class="nav-link" href="/admin">
+                <i class="bi bi-clipboard-data-fill"></i>
+                <li class="nav-item">
+                    DASHBOARD
+                </li>
+            </a>
+            <a class="nav-link" href="/admin/products">
+                <i class="bi bi-box2-fill"></i>
+                <li class="nav-item">
+                    PRODUCTS
+                </li>
+            </a>
+            <a class="nav-link" href="#">
+                <i class="bi bi-cash-coin text-red"></i>
+                <li class="nav-item">
+                    REFUND
+                </li>
+            </a>
+            <a class="nav-link" href="#">
+                <i class="bi bi-bookshelf"></i>
+                <li class="nav-item">
+                    STOCK
+                </li>
+            </a>
+            <a class="nav-link" href="#">
+                <i class="bi bi-people-fill"></i>
+                <li class="nav-item">
+                    USERS
+                </li>
+            </a>
+            <a class="nav-link" href="#">
+                <i class="bi bi-bandaid-fill"></i>
+                <li class="nav-item">
+                    DEFECTED
+                </li>
+            </a>
+        </ul>
+    </div>

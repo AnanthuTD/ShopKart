@@ -1,0 +1,30 @@
+.full-height{
+    height: 100%;
+}
+.side{
+    left: 0;
+}
+.expanded{
+    width: 260px;
+    background-color: whitesmoke;
+}
+#menu a{
+    width: 100%;
+    height: 65px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+#menu li{
+    display: flex;
+   align-items: center;
+   color: midnightblue;
+   width: 100%;
+
+}
+#menu i{
+    color: #2874DF;
+    font-size: x-large;
+    margin-inline: 20px;
+    margin-inline: 25px
+}

@@ -3,7 +3,7 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-
+var db = require('./config/connection')
 var adminRouter = require('./routes/admin');
 var usersRouter = require('./routes/users');
 
@@ -27,7 +27,12 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+db.connect((err) =>{
+  if (err) console.log('!Error connecting to database : ' + err);
+  else console.log('database created');
+})
 app.use('/admin', adminRouter);
+app.use('/admin/user', adminRouter);
 app.use('/', usersRouter);
 
 // catch 404 and forward to error handler

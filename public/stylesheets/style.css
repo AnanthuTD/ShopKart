@@ -5,6 +5,7 @@ html {
 html, body {
   max-width: 100%;
   overflow-x: hidden;
+  height: 100%;
 }
 body{
   margin: 0;
@@ -22,7 +23,7 @@ header a{
   color: #2874DF;  
   padding-right: 10px;
 }
-.nav{
+header.nav{
   display: flex;
   align-items: center;
   justify-content: center;
