@@ -23,4 +23,9 @@ module.exports.connect = function (done) {
         return done()
 
     });
+
+}
+
+module.exports.get = function(){
+    return status.db;
 }

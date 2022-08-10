@@ -43,7 +43,7 @@ header.nav{
 .search input[type="text"]{
   border: none;
   box-shadow: 0 2px 4px 0 rgb(0 0 0 / 23%);
-  width: -webkit-fill-available;
+  width: 100%;
   height: 35px;
   padding-left: 15px;
   padding-right: 15px;
@@ -70,10 +70,10 @@ header.nav{
 #login button[type="button"]{
   border: none;
   box-shadow: 0 2px 4px 0 rgb(0 0 0 / 23%);
-  width: -webkit-fill-available;
+  width: 100%;
   height: 30px;
   color: #2874DF;
-  -webkit-text-stroke: thin;
+  -webkit-text-stroke: .5px;
  margin-inline: 40px;
  border-radius: 3px;
  font-weight: 500;
@@ -93,7 +93,7 @@ input#more{
 }
 #login-table{
   position: absolute;
-  top: 37px;
+  top: 30px;
   display: none;
   padding-left: 12px;
   padding-right: 12px;
@@ -124,7 +124,7 @@ input#more{
 }
 #more-table{
   position: absolute;
-  top: 37px;
+  top: 25px;
   display: none;
   z-index: 5;
   /* right: 14.5%; */
@@ -202,7 +202,7 @@ div#category_intern_row{
 }
 #category_intern_row i{
   color: #c6c6c7;
-  -webkit-text-stroke: medium;
+  -webkit-text-stroke: 0.9px;
 }
 #category_intern_row div:hover i{
   color: #2874DF;

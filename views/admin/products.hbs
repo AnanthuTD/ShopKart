@@ -12,32 +12,22 @@
                     <th scope="col">#</th>
                     <th scope="col">NAME</th>
                     <th scope="col">CATAGORY</th>
-                    <th scope="col">PRISE</th>
+                    <th scope="col">PRIcE</th>
                     <th scope="col">DESC</th>
                     <th scope="col">IMAGE</th>
                 </tr>
             </thead>
             <tbody>
+                {{#each products}}
                 <tr>
                     <th scope="row">1</th>
-                    <td>Mark</td>
-                    <td>Otto</td>
-                    <td>@mdo</td>
+                    <td> {{this.name}} </td>
+                    <td> {{this.catagory}} </td>
+                    <td> {{this.price}} </td>
+                    <td> {{this.discription}} </td>
+                    <td> <img style="width: 25px; height: 25px;" src="/products/{{this.img}}" alt=""/> </td>
                 </tr>
-                <tr>
-                    <th scope="row">2</th>
-                    <td>Jacob</td>
-                    <td>Thornton</td>
-                    <td>@fat</td>
-                    <td>@twitter</td>
-                </tr>
-                <tr>
-                    <th scope="row">3</th>
-                    <td>Larry</td>
-                    <td>the Bird</td>
-                    <td>@twitter</td>
-                    <td>@twitter</td>
-                </tr>
+                {{/each}}
             </tbody>
         </table>
     </div>

@@ -3,9 +3,12 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-var db = require('./config/connection')
+var fileUpload = require('express-fileupload')
+var db = require('./config/connection');
+var productHelpers = require('./helpers/product-helpers');
 var adminRouter = require('./routes/admin');
 var usersRouter = require('./routes/users');
+var promise = require('promise');
 
 var app = express();
 
@@ -26,6 +29,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(fileUpload());
 
 db.connect((err) =>{
   if (err) console.log('!Error connecting to database : ' + err);
