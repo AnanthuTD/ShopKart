@@ -1,7 +1,7 @@
 <header class="row nav">
     <div class="search col-5 pe-0">
-        <a href="">
-            <img src="/images/flipkart-logo.png" alt="">
+        <a href="/">
+            <img src="/images/flipkart-logo.png" alt=""/>
         </a>
         <input type="text" id="form1" placeholder="Search" />
         <button type="submit">
@@ -9,15 +9,28 @@
         </button>
     </div>
     <div class="col-2" id="login">
-        <button type="button" id="login-btn" class="p-0">Login</button>
-        <div id="login-table" class="">
+        <a href="/login" id="login-btn" >
+            <button type="button" class="p-0">
+                {{#if user}}
+                My Account
+                {{else}}
+                Login
+                {{/if}}
+                </button>
+        </a>
+        <div id="login-table">
             <div class="blank_row" id="login-blank">
                 <i class="bi bi-caret-up-fill text-white mx-auto"></i>
             </div>
             <table id="table">
-                <tr>
-                    <a href="/users/login"><td>New Customer Signup</td></a>
-                </tr>
+                {{#unless user}}
+                <a href="/users/login">
+                    <tr>
+                        <td>New Customer</td>
+                        <td class="link">Signup</td>
+                    </tr>
+                </a>
+                {{/unless}}
                 <tr>
                     <td>
                         <i class="bi bi-person-circle blue"></i>My Profile
@@ -28,12 +41,21 @@
                         <i class="bi bi-archive-fill blue"></i>Orders
                     </td>
                 </tr>
-                <tr class="border-0">
+                <tr>
                     <!--last row -->
                     <td>
                         <i class="bi bi-suit-heart-fill blue"></i>Whistle
                     </td>
                 </tr>
+                {{#if user}}
+                
+                    <tr>
+                        <a href="/users/logout"></a>
+                        <td>Logout</td>
+                        </a>
+                    </tr>
+                
+                {{/if}}
             </table>
         </div>
     </div>

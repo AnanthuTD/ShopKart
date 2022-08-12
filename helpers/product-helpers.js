@@ -13,18 +13,17 @@ module.exports = {
 
             id = data.insertedId.toString();
             callback(id);
-        }).catch((err)=>{throw err})
+        }).catch((err) => { throw err })
     },
 
-    addImage: async(productImage, id) => {
+    addImage: async (productImage, id) => {
 
-        var objId = 'ObjectId("'+id+'")';
-        var myquery = { _id : ObjectId(id)};
-        var newvalues = { $set: {img: productImage} };
-        
-        db.get().collection(collections.PRODUCT_COLLECTION).updateOne( myquery,newvalues, function(err, res) {
-          if (err) throw err;
-          console.log(res);
+        var myquery = { _id: ObjectId(id) };
+        var newvalues = { $set: { img: productImage } };
+
+        db.get().collection(collections.PRODUCT_COLLECTION).updateOne(myquery, newvalues, function (err, res) {
+            if (err) throw err;
+            console.log(res);
         });
     },
 
