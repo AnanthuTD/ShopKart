@@ -1,4 +1,5 @@
 var express = require('express');
+const { render } = require('../app');
 var router = express.Router();
 const productHelpers = require('../helpers/product-helpers');
 const userHelpers = require('../helpers/user-helpers');
@@ -7,10 +8,9 @@ const userHelpers = require('../helpers/user-helpers');
 router.get('/', function (req, res, next) {
 
   let user = req.session.user_data;
-  console.log(req.session.user_data)
   productHelpers.getAllProducts().then((products) => {
 
-    res.render('users/user-main', { title: 'shop kart', products: products, user });
+    res.render('users/user-main', { title: 'shop kart', products: products, user: user });
   })
 
 });
@@ -45,7 +45,6 @@ router.post('/user-login', function (req, res) {
       var data = response
       req.session.logedIn = true;
       req.session.user_data = data;
-      // console.log(req);
       res.redirect('/')
     }
     else
@@ -56,8 +55,38 @@ router.post('/user-login', function (req, res) {
   })
 })
 
-router.get('/logout', (req, res)=>{
+router.get('/logout', (req, res) => {
   req.session.destroy()
   res.redirect('/')
 })
+
+router.get('/cartView/:userId', (req, res) => {
+
+  var userId = req.params.userId;
+
+  userHelpers.getAllProducts(userId).then((products) => {
+
+    res.render('users/cart', { products })
+
+  })
+
+})
+
+router.get('/cart/:userId/:proId', (req, res) => {
+
+  var userId = req.params.userId;
+  var proId = req.params.proId;
+  console.log(userId);
+  userHelpers.getProductInfo(userId, proId).then(() => {
+
+    userHelpers.getAllProducts(userId).then((products) => {
+
+      res.render('users/cart', { products })
+
+    })
+  })
+})
+
+
+
 module.exports = router;

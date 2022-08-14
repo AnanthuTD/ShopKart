@@ -34,7 +34,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(fileUpload());
 app.use(session({
-  secret: 'key', cookie: { maxAge: 6000000}
+  secret: 'key', cookie: { maxAge: 1*60*60*1000}, // = 1hour //hh:mm:ss:millisec
+  resave: false, saveUninitialized: false
 }));
 
 db.connect((err) => {

@@ -19,74 +19,95 @@
             <div class="blank_row" id="login-blank">
                 <i class="bi bi-caret-up-fill text-white mx-auto"></i>
             </div>
-            <table id="table">
-                <tr>
-                    <td>New Customer Signup</td>
-                </tr>
-                <tr>
-                    <td>
+            {{!-- table --}}
+            <div class="table data-list">
+                {{#unless user}}
+                <div class="row">
+                    <a href="/users/login">
+                        <div class="col-6">New Customer</div>
+                        <div class="link col-6">Signup</div>
+                    </a>
+                </div>
+            {{/unless}}
+            <div class="row">
+                <a href="">
+                    <div>
                         <i class="bi bi-person-circle blue"></i>My Profile
-                    </td>
-                </tr>
-                <tr>
-                    <td>
+                    </div>
+                </a>
+            </div>
+            <div class="row">
+                <a href="">
+                    <div>
                         <i class="bi bi-archive-fill blue"></i>Orders
-                    </td>
-                </tr>
-                <tr class="border-0">
-                    <!--last row -->
-                    <td>
+                    </div>
+                </a>
+            </div>
+            <div class="border-bottom-0 row">
+                <!--last row -->
+                <a href="">
+                    <div>
                         <i class="bi bi-suit-heart-fill blue"></i>Whistle
-                    </td>
-                </tr>
-            </table>
+                    </div>
+                </a>
+            </div>
         </div>
     </div>
-    <div class="col-3 d-flex p-0">
-        <div class="me-5">
-            <a href="" class="">Become a Seller</a>
-        </div>
-        <div class="me-5" id="more">
-            <div id="more-label" class="d-flex align-items-center">
-                <label class="text-light"
-                       style="-webkit-text-stroke: thin;
-                              cursor: pointer;">More</label>
-                <div class="down-arrow fa-xs">
-                    <i class="bi bi-chevron-down"></i>
-                </div>
-                <div class="up-arrow fa-xs">
-                    <i class="bi bi-chevron-up"></i>
-                </div>
+</div>
+<div class="col-3 d-flex p-0 align-items-center">
+    <div class="me-5">
+        <a href="" class="">Become a Seller</a>
+    </div>
+    <div class="me-5" id="more">
+        <div id="more-label" class="d-flex align-items-center my-auto">
+            <label class="text-light mb-0"
+                   style="-webkit-text-stroke: thin;
+                          cursor: pointer;">More</label>
+            <div class="down-arrow fa-xs">
+                <i class="bi bi-chevron-down"></i>
             </div>
-            <div id="more-table" class=".more-table">
-                <div class="blank_row">
-                    <i class="bi bi-caret-up-fill text-white mx-auto"></i>
-                </div>
-                <table id="table">
-                    <tr>
-                        <td>
+            <div class="up-arrow fa-xs">
+                <i class="bi bi-chevron-up"></i>
+            </div>
+        </div>
+        <div id="more-table" class=".more-table">
+            <div class="blank_row">
+                <i class="bi bi-caret-up-fill text-white mx-auto"></i>
+            </div>
+            {{!-- table --}}
+            <div class="data-list table">
+                <div class="row data-list-row">
+                    <a href="">
+                        <div class="col">
                             <i class="bi bi-bell-fill blue"></i>Notification Preference
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
+                        </div>
+                    </a>
+                </div>
+                <div class="row data-list-row">
+                    <a href="">
+                        <div>
                             <i class="bi bi-question-diamond-fill blue"></i>24x7 Custome Support
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
+                        </div>
+                    </a>
+                </div>
+                <div class="row data-list-row">
+                    <a href="">
+                        <div>
                             <i class="bi bi-graph-up-arrow blue"></i>Advertice
-                        </td>
-                    </tr>
-                    <tr class="border-0">
-                        <!--last row -->
-                        <td>
+                        </div>
+                    </a>
+                </div>
+                <div class="border-0 row data-list-row">
+                    <!--last row -->
+                    <a href="">
+                        <div>
                             <i class="bi bi-download blue"></i>Download Apps
-                        </td>
-                    </tr>
-                </table>
+                        </div>
+                    </a>
+                </div>
             </div>
         </div>
+    </div>
         <div class="me-5">
             <a href="/admin/user">&emsp;user</a>
         </div>

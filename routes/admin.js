@@ -27,6 +27,7 @@ router.get('/products', function(req, res, next) {
 router.get('/add-products-page', function(req, res, next) {
   res.render('admin/add-products', { title: 'shop kart',admin:true });
 });
+
 router.post('/add-products', (req, res, next) => {
   // console.log(req.body)
   // console.log(req.files.image.name)
@@ -48,6 +49,17 @@ router.post('/add-products', (req, res, next) => {
     res.render('admin/add-products');
   });
 });
+
+router.get('/deleteProduct/:proId', (req, res)=>{
+  var proId = req.params.proId;
+  console.log(proId);
+  productHelpers.deleteProduct(proId).then((response)=>{
+    if(response.status)
+    {
+      res.redirect('back');
+    }
+  })
+})
 
 
 

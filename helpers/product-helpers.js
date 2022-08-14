@@ -3,7 +3,8 @@ var db = require('../config/connection')
 // accessing collections
 var collections = require('../config/collections');
 const { resolve, reject } = require('promise');
-ObjectId = require('mongodb').ObjectId
+const { ObjectId } = require('mongodb');
+const { response } = require('express');
 
 module.exports = {
 
@@ -34,6 +35,20 @@ module.exports = {
             let products = await db.get().collection(collections.PRODUCT_COLLECTION).find().toArray();
             resolve(products);
         });
-    }
+    },
 
+    deleteProduct: (proId)=>{
+
+        proId = ObjectId(proId);
+        console.log(proId);
+        return new Promise((resolve, reject) => {
+            db.get().collection(collections.PRODUCT_COLLECTION).deleteOne({_id: proId}).then((res)=>{
+                resolve({status: true});
+            }).catch((err)=>{
+                reject({status: false})
+            })
+        })
+    },
+
+   
 }
