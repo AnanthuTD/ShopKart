@@ -20,7 +20,7 @@
             <tbody>
                 {{#each products }}
                     <tr>
-                        <th scope="row">1</th>
+                        <th scope="row">{{inc @index}}</th>
                         <td>{{this.name}}</td>
                         <td>{{this.catagory}}</td>
                         <td>{{this.price}}</td>
@@ -32,7 +32,7 @@
                                  alt=""/>
                         </td>
                         <td>
-                            <a class="btn btn-warning">Edit</a>
+                            <a class="btn btn-warning" href="/admin/edit-product/{{this._id}}">Edit</a>
                         </td>
                         <td>
                             <a class="btn btn-danger"

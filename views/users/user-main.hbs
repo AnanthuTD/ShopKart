@@ -120,7 +120,7 @@
             <div class="card-body">
                 <h5 class="card-title"> {{this.name}} </h5>
                 {{#if ../user}}
-                    <a href="/cart/{{../user.details._id}}/{{this._id}}" class="btn btn-primary">Cart</a>
+                    <a href="/addToCart/{{this._id}}" class="btn btn-primary">Cart</a>
                 {{/if}}
             </div>
         </div>

@@ -1,13 +1,21 @@
-
-{{#each products}}
-    <div class="col-md-3 col-sm-4">
-        <div class="card">
-            <img class="card-img-top"
-                 src="/products/{{this.img}}"
-                 alt="Card image cap"/>
-            <div class="card-body">
-                <h5 class="card-title"> {{this.name}} </h5>
+<link rel="stylesheet" href="/stylesheets/cart.css"/>
+<div class="container cart">
+    {{#if products }}
+        {{#each products }}
+            <div class="col-md-3 col-sm-4">
+                <div class="card">
+                    <img class="card-img-top"
+                         src="/products/{{this.img}}"
+                         alt="Card image cap"/>
+                    <div class="card-body">
+                        <h5 class="card-title">{{this.name}}</h5>
+                        <a href="/removeProduct/{{this._id}}"
+                           class="btn btn-danger">Remove</a>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
-{{/each}}
+        {{/each}}
+    {{else}}
+        <h3>Your cart is empty</h3>
+    {{/if}}
+</div>

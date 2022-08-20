@@ -1,31 +1,39 @@
 
 const db = require('../config/connection');
-var promise = require('promise');
 const { Db, ObjectId } = require('mongodb');
 var bcrypt = require('bcrypt');
-const { resolve, reject } = require('promise');
-const { response } = require('../app');
 const collections = require('../config/collections');
 
 module.exports = {
 
     doSignup: (userData) => {
 
-        return new promise(async (resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
 
             userData.password = await bcrypt.hash(userData.password, 12);
+            var id = await db.get().collection(collections.USER_COLLECTION).count() + 1;
+            userData._id = id
+           
+            if (await db.get().collection(collections.USER_COLLECTION).findOne({ email: userData.email })) {
 
-            db.get().collection(collections.USER_COLLECTION).insertOne(userData).then((data) => {
+                resolve({ status: false })
+            }
+            else {
+                db.get().collection(collections.USER_COLLECTION).insertOne(userData).then((data) => {
 
-                resolve(data.insertedId);
-            })
+                    resolve({ status: true });
+                    console.log("success");
+                })
+            }
+
+
 
         })
     },
 
     doLogin: (userData) => {
 
-        return new promise(async (resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
 
             let response = {};
 
@@ -53,6 +61,7 @@ module.exports = {
                     }
 
                 }).catch((err) => {
+                    console.log("Login faild ! ")
                     throw err;
                 })
             }
@@ -88,18 +97,33 @@ module.exports = {
 
     getAllProducts: (userId) => {
 
-        return new Promise(async(resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             // get products in the cart
             db.get().collection(collections.USER_COLLECTION).findOne({ _id: ObjectId(userId) }).then(async (userData) => {
 
-                var products = await db.get().collection(collections.PRODUCT_COLLECTION).find({ _id: { $in: userData.cart } }).toArray();
-                console.log(products)
+                if (userData.cart)
+                    var products = await db.get().collection(collections.PRODUCT_COLLECTION).find({ _id: { $in: userData.cart } }).toArray();
+
                 resolve(products);
             })
         })
 
 
 
+    },
+
+    removeProduct: (proId, userId) => {
+
+        console.log(userId);
+        return new Promise((resolve, reject) => {
+
+            db.get().collection(collections.USER_COLLECTION).updateOne({ "_id": ObjectId(userId) }, { $pull: { "cart": ObjectId(proId) } }).then((res) => {
+                console.log(res);
+                resolve({ status: true });
+            }).catch((err) => {
+                reject({ status: false })
+            })
+        })
     }
 
 }

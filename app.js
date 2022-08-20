@@ -1,7 +1,6 @@
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
-//var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var fileUpload = require('express-fileupload')
 var db = require('./config/connection');
@@ -10,8 +9,12 @@ var adminRouter = require('./routes/admin');
 var usersRouter = require('./routes/users');
 var promise = require('promise');
 var session = require('express-session')
+var handleBars = require('handlebars')
+handleBars.registerHelper("inc",(value)=>{
+  return parseInt(value)+1;
+})
 
-var app = express();
+const app = express();   
 
 // view engine setup
 var hbs = require('express-handlebars');
@@ -37,6 +40,7 @@ app.use(session({
   secret: 'key', cookie: { maxAge: 1*60*60*1000}, // = 1hour //hh:mm:ss:millisec
   resave: false, saveUninitialized: false
 }));
+
 
 db.connect((err) => {
   if (err) console.log('!Error connecting to database : ' + err);

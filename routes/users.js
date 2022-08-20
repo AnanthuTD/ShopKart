@@ -1,5 +1,4 @@
 var express = require('express');
-const { render } = require('../app');
 var router = express.Router();
 const productHelpers = require('../helpers/product-helpers');
 const userHelpers = require('../helpers/user-helpers');
@@ -17,7 +16,8 @@ router.get('/', function (req, res, next) {
 
 router.get('/login', function (req, res, next) {
 
-  res.render('users/login', { title: 'shop kart' });
+  let user = req.session.user_data;
+  res.render('users/login', { title: 'shop kart', user: user });
 
 });
 
@@ -28,12 +28,17 @@ router.get('/signup', function (req, res, next) {
 });
 
 router.post('/user-signup', function (req, res) {
-
+  
   userHelpers.doSignup(req.body).then((response) => {
 
-    res.render('users/login')
-  }).catch((err) => {
-    throw err;
+    if (response.status)
+      res.redirect('/login')
+    else
+    {
+      var emailErr = "This email id already exist" ;
+      res.render('users/signup', { title: 'shop kart', emailErr});
+    }
+    
   })
 })
 
@@ -60,33 +65,41 @@ router.get('/logout', (req, res) => {
   res.redirect('/')
 })
 
-router.get('/cartView/:userId', (req, res) => {
+router.get('/cart', (req, res) => {
 
-  var userId = req.params.userId;
+  let user = req.session.user_data;
 
-  userHelpers.getAllProducts(userId).then((products) => {
+  userHelpers.getAllProducts(user.details._id).then((products) => {
 
-    res.render('users/cart', { products })
+    res.render('users/cart', { products, user })
 
   })
 
 })
 
-router.get('/cart/:userId/:proId', (req, res) => {
+router.get('/addToCart/:proId', (req, res) => {
 
-  var userId = req.params.userId;
+  let user = req.session.user_data;
   var proId = req.params.proId;
-  console.log(userId);
-  userHelpers.getProductInfo(userId, proId).then(() => {
+  console.log(user.details._id);
+  userHelpers.getProductInfo(user.details._id, proId).then(() => {
 
-    userHelpers.getAllProducts(userId).then((products) => {
+    userHelpers.getAllProducts(user.details._id).then((products) => {
 
-      res.render('users/cart', { products })
+      res.render('users/cart', { products, user })
 
     })
   })
 })
 
+router.get('/removeProduct/:proId', (req, res) => {
 
+  let user = req.session.user_data;
+  var proId = req.params.proId;
+
+  userHelpers.removeProduct(proId, user.details._id, proId).then((stat) => {
+    res.redirect('/cart')
+  })
+})
 
 module.exports = router;

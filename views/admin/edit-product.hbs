@@ -1,0 +1,109 @@
+<link rel="stylesheet" href="/stylesheets/add-products.css"/>
+<section class="container">
+    <form action="/admin/edit-product/{{product._id}}"
+          method="post"
+          enctype="multipart/form-data">
+        <div class="form-group row">
+            <label for="product-name" class="col-4 col-form-label">Name</label>
+            <div class="col-8">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text">
+                            <i class="fa fa-address-card"></i>
+                        </div>
+                    </div>
+                    <input id="product-name"
+                           name="name"
+                           value="{{product.name}}"
+                           placeholder="name"
+                           type="text"
+                           aria-describedby="product-nameHelpBlock"
+                           required="required"
+                           class="form-control"/>
+                </div>
+                <span id="product-nameHelpBlock" class="form-text text-muted">Product Name</span>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-4 col-form-label" for="product-category">Category</label>
+            <div class="col-8">
+                <input id="product-category"
+                       name="category"
+                       value="{{product.category}}"
+                       placeholder="eg : Smart phone, Tablet"
+                       type="text"
+                       aria-describedby="categoryHelpBlock"
+                       required="required"
+                       class="form-control"/>
+                <span id="categoryHelpBlock" class="form-text text-muted">category in which the product is included.</span>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="price" class="col-4 col-form-label">Price</label>
+            <div class="col-8">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text">
+                            <i class="bi bi-currency-rupee"></i>
+                        </div>
+                    </div>
+                    <input id="product-price"
+                           name="price"
+                           value="{{product.price}}"
+                           placeholder="price"
+                           type="text"
+                           required="required"
+                           class="form-control"/>
+                </div>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="product-dsc" class="col-4 col-form-label">Discription</label>
+            <div class="col-8">
+                <input id="product-dsc"
+                       name="discription"
+                       value="{{product.discription}}"
+                       cols="40"
+                       rows="5"
+                       class="form-control"/>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="img" class="col-4 col-form-label">current file</label>
+            <div class="col-8">
+                <img id="imgView"
+                     src="/products/{{product.img}}"
+                     alt="product image"
+                     style="height: auto;
+                            width: 165px;"/>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="img" class="col-4 col-form-label">Files</label>
+            <div class="col-8">
+                <div class="input-group">
+                    <input id="product-image"
+                           name="image"
+                           placeholder="img"
+                           type="file"
+                           required="required"
+                           class="form-control"
+                           onchange="viewImage(event)"/>
+                </div>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="offset-4 col-8">
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+        </div>
+    </form>
+</section>
+</div>
+
+<script>
+    function viewImage(event){
+    console.log(event)
+    document.getElementById('imgView').src=URL.createObjectURL(event.target.files[0])
+}
+</script>

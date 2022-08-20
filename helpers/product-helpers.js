@@ -40,7 +40,6 @@ module.exports = {
     deleteProduct: (proId)=>{
 
         proId = ObjectId(proId);
-        console.log(proId);
         return new Promise((resolve, reject) => {
             db.get().collection(collections.PRODUCT_COLLECTION).deleteOne({_id: proId}).then((res)=>{
                 resolve({status: true});
@@ -50,5 +49,32 @@ module.exports = {
         })
     },
 
+    getProduct: (proId) => {
+
+        return new Promise(async (resolve, reject) => {
+
+            proId = await ObjectId(proId);
+
+            db.get().collection(collections.PRODUCT_COLLECTION).findOne({ _id: proId}).then((res) => {
+
+                resolve(res);
+            })
+
+        }).catch((err) => {
+            throw err;
+        })
+    },
+
+    editProduct: (product, id)=>{
+        console.log(product);
+        return new Promise((resolve, reject)=>{
+
+            db.get().collection(collections.PRODUCT_COLLECTION).updateOne({_id: ObjectId(id)},{$set: product}).then((response)=>{
+
+                console.log(response)
+                resolve("success");
+            })
+        })
+    }
    
 }
