@@ -1,3 +1,13 @@
+<style>
+    #cart span{
+        padding-inline: 5px;
+        padding-block: 0px;
+    }
+    a#cart{
+        padding-right: 13px!important;
+    }
+</style>
+
 <header class="row nav">
     <div class="search col-5 pe-0">
         <a href="/">
@@ -12,7 +22,7 @@
         <a href="/login" id="login-btn">
             <button type="button" class="p-0">
                 {{#if user }}
-                    My Account
+                   {{user.details.first-name}}
                 {{else}}
                     Login
                 {{/if}}
@@ -25,13 +35,13 @@
             {{!-- table --}}
             <div class="table data-list">
                 {{#unless user}}
-                    <div class="border-top-0 row">
-                        <a href="/login">
-                            <div class="col-6">New Customer</div>
-                            <div class="link col-6">Signup</div>
-                        </a>
-                    </div>
-                {{/unless}}
+                <div class="border-top-0 row">
+                    <a href="/login">
+                        <div class="col-6">New Customer</div>
+                        <div class="link col-6">Signup</div>
+                    </a>
+                </div>
+            {{/unless}}
             <div class="row">
                 <a href="">
                     <div>
@@ -54,15 +64,13 @@
                     </div>
                 </a>
             </div>
-            {{#if user}}
+            {{#if user }}
                 <div class="row">
-                <!--last row -->
-                <a href="/logout">
-                    <div>
-                        Logout
-                    </div>
-                </a>
-            </div>
+                    <!--last row -->
+                    <a href="/logout">
+                        <div>Logout</div>
+                    </a>
+                </div>
             {{/if}}
         </div>
     </div>
@@ -122,7 +130,12 @@
         </div>
     </div>
     <div class="me-5">
-        <a href="/cart"><i class="bi bi-cart3"></i>&emsp;Cart</a>
+        <a href="/cart" type="button" class="btn shadow-none position-relative text-white py-0" id="cart" onclick="">
+            Cart
+            <span class="position-absolute top-0 start-100 translate-middle bg-danger rounded-circle">
+                {{count}}
+            </span>
+        </a>
     </div>
 </div>
 </header>

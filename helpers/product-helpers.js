@@ -2,19 +2,22 @@
 var db = require('../config/connection')
 // accessing collections
 var collections = require('../config/collections');
-const { resolve, reject } = require('promise');
 const { ObjectId } = require('mongodb');
-const { response } = require('express');
 
 module.exports = {
 
-    addProduct: (product, callback) => {
+    addProduct: async (product) => {
 
-        db.get().collection(collections.PRODUCT_COLLECTION).insertOne(product).then((data) => {
+        return new Promise((resolve, reject) => {
 
-            id = data.insertedId.toString();
-            callback(id);
-        }).catch((err) => { throw err })
+            db.get().collection(collections.PRODUCT_COLLECTION).insertOne(product).then((data) => {
+
+                var id = (data.insertedId).toString();
+
+                resolve(id)
+            }).catch((err) => { console.log('product insertion faild' + err); })
+        })
+
     },
 
     addImage: async (productImage, id) => {
@@ -37,14 +40,17 @@ module.exports = {
         });
     },
 
-    deleteProduct: (proId)=>{
+    deleteProduct: (proId) => {
 
-        proId = ObjectId(proId);
         return new Promise((resolve, reject) => {
-            db.get().collection(collections.PRODUCT_COLLECTION).deleteOne({_id: proId}).then((res)=>{
-                resolve({status: true});
-            }).catch((err)=>{
-                reject({status: false})
+            console.log(proId);
+            db.get().collection(collections.PRODUCT_COLLECTION).deleteOne({ _id:  ObjectId(proId) }).then((res) => {
+                console.log('\n.....Product deleted successfully.....\n');
+                console.log(res);
+                resolve({ status: true });
+            }).catch((err) => {
+                console.log('\n......Product deletion faild......\n'+err);
+                reject({ status: false })
             })
         })
     },
@@ -53,9 +59,7 @@ module.exports = {
 
         return new Promise(async (resolve, reject) => {
 
-            proId = await ObjectId(proId);
-
-            db.get().collection(collections.PRODUCT_COLLECTION).findOne({ _id: proId}).then((res) => {
+            db.get().collection(collections.PRODUCT_COLLECTION).findOne({ _id:  ObjectId(proId) }).then((res) => {
 
                 resolve(res);
             })
@@ -65,16 +69,16 @@ module.exports = {
         })
     },
 
-    editProduct: (product, id)=>{
+    editProduct: (product, id) => {
         console.log(product);
-        return new Promise((resolve, reject)=>{
+        return new Promise((resolve, reject) => {
 
-            db.get().collection(collections.PRODUCT_COLLECTION).updateOne({_id: ObjectId(id)},{$set: product}).then((response)=>{
+            db.get().collection(collections.PRODUCT_COLLECTION).updateOne({ _id:  ObjectId(id) }, { $set: product }).then((response) => {
 
                 console.log(response)
                 resolve("success");
             })
         })
     }
-   
+
 }

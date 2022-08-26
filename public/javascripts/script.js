@@ -1,4 +1,3 @@
-const { ExpressHandlebars } = require("express-handlebars");
 
 console.log("hi");
 $(document).ready(function () {

@@ -8,13 +8,12 @@ var productHelpers = require('./helpers/product-helpers');
 var adminRouter = require('./routes/admin');
 var usersRouter = require('./routes/users');
 var promise = require('promise');
-var session = require('express-session')
 var handleBars = require('handlebars')
-handleBars.registerHelper("inc",(value)=>{
-  return parseInt(value)+1;
+handleBars.registerHelper("inc", (value) => {
+  return parseInt(value) + 1;
 })
 
-const app = express();   
+const app = express();
 
 // view engine setup
 var hbs = require('express-handlebars');
@@ -36,18 +35,15 @@ app.use(express.urlencoded({ extended: false }));
 //app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(fileUpload());
-app.use(session({
-  secret: 'key', cookie: { maxAge: 1*60*60*1000}, // = 1hour //hh:mm:ss:millisec
-  resave: false, saveUninitialized: false
-}));
-
 
 db.connect((err) => {
   if (err) console.log('!Error connecting to database : ' + err);
   else console.log('database created');
 })
+// session Storage
+require('./config/session')(app)
+
 app.use('/admin', adminRouter);
-app.use('/admin/user', adminRouter);
 app.use('/', usersRouter);
 
 // catch 404 and forward to error handler

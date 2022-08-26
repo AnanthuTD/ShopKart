@@ -1,3 +1,4 @@
+const { response } = require('express');
 var express = require('express');
 var router = express.Router();
 const productHelpers = require('../helpers/product-helpers');
@@ -6,10 +7,23 @@ const userHelpers = require('../helpers/user-helpers');
 /* GET home page. */
 router.get('/', function (req, res, next) {
 
+  let count = 0
   let user = req.session.user_data;
   productHelpers.getAllProducts().then((products) => {
 
-    res.render('users/user-main', { title: 'shop kart', products: products, user: user });
+    console.log(user);
+    if(user){
+      userHelpers.cartCount(user.details._id).then((response)=>{
+
+       count = response
+       res.render('users/user-main', { title: 'shop kart', products: products, user: user , count});
+      })
+    }
+    else{
+
+      res.render('users/user-main', { title: 'shop kart', products: products, user: user , count});
+    }
+    
   })
 
 });
@@ -71,6 +85,7 @@ router.get('/cart', (req, res) => {
 
   userHelpers.getAllProducts(user.details._id).then((products) => {
 
+    console.log(products);
     res.render('users/cart', { products, user })
 
   })
@@ -81,13 +96,12 @@ router.get('/addToCart/:proId', (req, res) => {
 
   let user = req.session.user_data;
   var proId = req.params.proId;
-  console.log(user.details._id);
-  userHelpers.getProductInfo(user.details._id, proId).then(() => {
+  console.log(user);
+  userHelpers.addProduct(user.details._id, proId).then(() => {
 
     userHelpers.getAllProducts(user.details._id).then((products) => {
 
       res.render('users/cart', { products, user })
-
     })
   })
 })

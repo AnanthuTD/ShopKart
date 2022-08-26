@@ -8,6 +8,7 @@
   "dependencies": {
     "bcrypt": "^5.0.1",
     "connect-livereload": "^0.6.1",
+    "connect-mongo": "^4.6.0",
     "cookie-parser": "~1.4.4",
     "crypto-js": "^4.1.1",
     "debug": "~2.6.9",

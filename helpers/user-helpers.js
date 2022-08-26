@@ -3,6 +3,7 @@ const db = require('../config/connection');
 const { Db, ObjectId } = require('mongodb');
 var bcrypt = require('bcrypt');
 const collections = require('../config/collections');
+const { resolve, reject } = require('promise');
 
 module.exports = {
 
@@ -11,9 +12,7 @@ module.exports = {
         return new Promise(async (resolve, reject) => {
 
             userData.password = await bcrypt.hash(userData.password, 12);
-            var id = await db.get().collection(collections.USER_COLLECTION).count() + 1;
-            userData._id = id
-           
+
             if (await db.get().collection(collections.USER_COLLECTION).findOne({ email: userData.email })) {
 
                 resolve({ status: false })
@@ -31,80 +30,88 @@ module.exports = {
         })
     },
 
-    doLogin: (userData) => {
+    doLogin: async (userData) => {
 
-        return new Promise(async (resolve, reject) => {
+        try {
+            return await new Promise(async (resolve, reject) => {
 
-            let response = {};
+                let response = {};
 
 
-            var user = await db.get().collection(collections.USER_COLLECTION).findOne({ email: userData.email });
+                var user = await db.get().collection(collections.USER_COLLECTION).findOne({ email: userData.email });
 
-            if (user) {
+                if (user) {
 
-                bcrypt.compare(userData.password, user.password).then((flag) => {
+                    bcrypt.compare(userData.password, user.password).then((flag) => {
 
-                    if (flag) {
+                        if (flag) {
 
-                        console.log('login success');
-                        response.status = true;
-                        response.details = user;
+                            console.log('login success');
+                            response.status = true;
+                            response.details = user;
 
-                        resolve(response);
-                    }
-                    else {
+                            resolve(response);
+                        }
+                        else {
 
-                        console.log('login faild');
-                        response.status = false;
+                            console.log('login faild');
+                            response.status = false;
 
-                        resolve(response)
-                    }
+                            resolve(response);
+                        }
 
-                }).catch((err) => {
-                    console.log("Login faild ! ")
-                    throw err;
-                })
-            }
-        }).catch((err) => {
-
-            resolve({ status: false })
-            throw err;
-        })
+                    }).catch((err) => {
+                        console.log("Login faild ! ");
+                        throw err;
+                    });
+                }
+            });
+        } catch (err_1) {
+            resolve({ status: false });
+            throw err_1;
+        }
     },
 
-    getProductInfo: (userId, proId) => {
+    addProduct: async (userId, proId) => {
 
-        return new Promise(async (resolve, reject) => {
+        try {
+            return await new Promise(async (resolve, reject) => {
 
-            proId = await ObjectId(proId);
+                db.get().collection(collections.USER_COLLECTION).updateOne({ _id: ObjectId(userId), cart: { $not: { $eq: proId } } }, { $push: { cart: ObjectId(proId) } }).then((res) => {
 
-            db.get().collection(collections.USER_COLLECTION).updateOne({ _id: ObjectId(userId), cart: { $not: { $eq: proId } } }, { $push: { cart: proId } }).then((res) => {
+                    console.log(res);
+                    if (res.modifiedCount == 0) {
+                        console.log("\n Item already exist in the cart \n");
+                    }
+                    else {
+                        console.log('\n Product Successfully added to cart \n');
+                    }
 
-                if (res.modifiedCount == 0) {
-                    console.log("\n Item already exist in the cart \n");
-                }
-                else {
-                    console.log('\n Product Successfully added to cart \n');
-                }
+                    resolve();
+                }).catch((err) => {
+                    console.log('err adding products to cart' + err);
+                })
 
-                resolve();
-            })
-
-        }).catch((err) => {
+            });
+        } catch (err) {
             throw err;
-        })
+        }
     },
 
     getAllProducts: (userId) => {
-
+        console.log(userId);
         return new Promise(async (resolve, reject) => {
             // get products in the cart
             db.get().collection(collections.USER_COLLECTION).findOne({ _id: ObjectId(userId) }).then(async (userData) => {
+                console.log(userData);
 
                 if (userData.cart)
                     var products = await db.get().collection(collections.PRODUCT_COLLECTION).find({ _id: { $in: userData.cart } }).toArray();
 
+                console.log(products);
                 resolve(products);
+            }).catch((err) => {
+                console.log('err finding user id in user-collections' + err);
             })
         })
 
@@ -120,9 +127,24 @@ module.exports = {
             db.get().collection(collections.USER_COLLECTION).updateOne({ "_id": ObjectId(userId) }, { $pull: { "cart": ObjectId(proId) } }).then((res) => {
                 console.log(res);
                 resolve({ status: true });
+
             }).catch((err) => {
+
+                console.log('\n......Remove product faild......\n' + err);
                 reject({ status: false })
             })
+        })
+    },
+
+    cartCount: (userId) => {
+
+        return new Promise(async (resolve, reject)=>{
+
+            console.log('count');
+            var count = await db.get().collection(collections.USER_COLLECTION).aggregate([{
+                $match: { _id: ObjectId(userId) }
+            }, { $project: { count: {$cond: {if: {$isArray: "$cart"}, then:{ $size: "$cart" }, else: 0}} } }]).toArray();
+            resolve(count[0].count);
         })
     }
 

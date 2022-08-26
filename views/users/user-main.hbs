@@ -113,14 +113,14 @@
 <div class="row" id="phone">
     {{#each products}}
     <div class="col-md-3 col-sm-4">
-        <div class="card">
-            <img class="card-img-top"
+        <div class="card h-100">
+            <img class="card-img-top img-fluid"
                  src="/products/{{this.img}}"
                  alt="Card image cap"/>
             <div class="card-body">
                 <h5 class="card-title"> {{this.name}} </h5>
                 {{#if ../user}}
-                    <a href="/addToCart/{{this._id}}" class="btn btn-primary">Cart</a>
+                    <button class="btn btn-primary" onclick="addToCart('{{this._id}}')">Cart</button>
                 {{/if}}
             </div>
         </div>

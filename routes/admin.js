@@ -8,8 +8,8 @@ router.get('/', function (req, res, next) {
   res.render('admin/dash-board', { title: 'shop kart', admin: true });
 });
 // GET user page
-router.get('/admin/user', function (req, res, next) {
-  res.render('index', { title: 'shop kart', admin: true });
+router.get('/user', function (req, res, next) {
+  res.render('users/user-main', { title: 'shop kart', admin: false });
 });
 // GET products page
 router.get('/products', function (req, res, next) {
@@ -33,7 +33,7 @@ router.post('/add-products', (req, res, next) => {
   // console.log(req.files.image.name)
   var fileExt = path.extname(req.files.image.name)
 
-  productHelpers.addProduct(req.body, (id) => {
+  productHelpers.addProduct(req.body).then((id) => {
 
     let img = req.files.image;
     let imgName = id + fileExt;
@@ -78,7 +78,7 @@ router.post('/edit-product/:id', (req, res) => {
   var fileExt = path.extname(req.files.image.name);
   console.log(req.body, id)
 
-  productHelpers.editProduct(req.body, id).then((stat)=>{
+  productHelpers.editProduct(req.body, id).then((stat) => {
 
     let img = req.files.image;
     let imgName = id + fileExt;
