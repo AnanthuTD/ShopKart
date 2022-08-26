@@ -82,12 +82,14 @@ module.exports = {
                     console.log(res);
                     if (res.modifiedCount == 0) {
                         console.log("\n Item already exist in the cart \n");
+                        resolve({status: false});
                     }
                     else {
                         console.log('\n Product Successfully added to cart \n');
+                        resolve({status: true});
                     }
 
-                    resolve();
+                   
                 }).catch((err) => {
                     console.log('err adding products to cart' + err);
                 })

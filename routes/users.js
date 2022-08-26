@@ -1,4 +1,4 @@
-const { response } = require('express');
+var addToCart = require('../public/javascripts/cart')
 var express = require('express');
 var router = express.Router();
 const productHelpers = require('../helpers/product-helpers');
@@ -82,37 +82,39 @@ router.get('/logout', (req, res) => {
 router.get('/cart', (req, res) => {
 
   let user = req.session.user_data;
-
   userHelpers.getAllProducts(user.details._id).then((products) => {
 
     console.log(products);
-    res.render('users/cart', { products, user })
+    res.render('users/cart', { products, user ,cart:false})
 
   })
 
 })
 
-router.get('/addToCart/:proId', (req, res) => {
+router.get('/add-to-cart/:proId', (req, res) => {
 
   let user = req.session.user_data;
   var proId = req.params.proId;
   console.log(user);
-  userHelpers.addProduct(user.details._id, proId).then(() => {
+  userHelpers.addProduct(user.details._id, proId).then((status) => {
 
-    userHelpers.getAllProducts(user.details._id).then((products) => {
-
-      res.render('users/cart', { products, user })
-    })
+    res.json({status:status.status})
   })
 })
 
-router.get('/removeProduct/:proId', (req, res) => {
+router.get('/remove-product/:proId', (req, res) => {
 
   let user = req.session.user_data;
   var proId = req.params.proId;
 
   userHelpers.removeProduct(proId, user.details._id, proId).then((stat) => {
-    res.redirect('/cart')
+
+    userHelpers.getAllProducts(user.details._id).then((products) => {
+
+      res.render('users/cart',{cart:true, layout:false, products})
+  
+    })
+   
   })
 })
 

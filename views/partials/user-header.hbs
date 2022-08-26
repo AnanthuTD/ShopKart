@@ -75,6 +75,7 @@
         </div>
     </div>
 </div>
+{{#unless cart}}
 <div class="col-3 d-flex p-0 align-items-center">
     <div class="me-5">
         <a href="" class="">Become a Seller</a>
@@ -130,12 +131,13 @@
         </div>
     </div>
     <div class="me-5">
-        <a href="/cart" type="button" class="btn shadow-none position-relative text-white py-0" id="cart" onclick="">
+        <button type="button" class="btn shadow-none position-relative text-white py-0" id="cart" onclick="loadCart()">
             Cart
-            <span class="position-absolute top-0 start-100 translate-middle bg-danger rounded-circle">
+            <span class="position-absolute top-0 start-100 translate-middle bg-danger rounded-circle" id="cart-count">
                 {{count}}
             </span>
-        </a>
+        </button>
     </div>
 </div>
+{{/unless}}
 </header>

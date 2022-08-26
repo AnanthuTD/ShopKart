@@ -1,4 +1,3 @@
-
 <div class="row d-flex justify-content-center p-2" id="catagory">
     <div class="col-10">
         <div class="row d-flex justify-content-between" id="category_intern_row">
@@ -111,19 +110,19 @@
     </a>
 </div>
 <div class="row" id="phone">
-    {{#each products}}
-    <div class="col-md-3 col-sm-4">
-        <div class="card h-100">
-            <img class="card-img-top img-fluid"
-                 src="/products/{{this.img}}"
-                 alt="Card image cap"/>
-            <div class="card-body">
-                <h5 class="card-title"> {{this.name}} </h5>
-                {{#if ../user}}
-                    <button class="btn btn-primary" onclick="addToCart('{{this._id}}')">Cart</button>
-                {{/if}}
+    {{#each products }}
+        <div class="col-md-3 col-sm-4">
+            <div class="card h-100">
+                <img class="card-img-top img-fluid"
+                     src="/products/{{this.img}}"
+                     alt="Card image cap"/>
+                <div class="card-body">
+                    <h5 class="card-title">{{this.name}}</h5>
+                    {{#if ../user }}
+                        <button class="btn btn-primary" onclick="addToCart('{{this._id}}')">Cart</button>
+                    {{/if}}
+                </div>
             </div>
         </div>
-    </div>
     {{/each}}
 </div>

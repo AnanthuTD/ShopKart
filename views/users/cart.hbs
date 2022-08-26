@@ -1,5 +1,5 @@
 <link rel="stylesheet" href="/stylesheets/cart.css"/>
-<div class="container cart">
+<div class="container cart" id="my-cart">
     {{#if products }}
         {{#each products }}
             <div class="col-md-3 col-sm-4">
@@ -9,8 +9,8 @@
                          alt="Card image cap"/>
                     <div class="card-body">
                         <h5 class="card-title">{{this.name}}</h5>
-                        <a href="/removeProduct/{{this._id}}"
-                           class="btn btn-danger">Remove</a>
+                        <button onclick="removeProduct('{{this._id}}')"
+                           class="btn btn-danger">Remove</button>
                     </div>
                 </div>
             </div>
