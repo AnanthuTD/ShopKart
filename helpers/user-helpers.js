@@ -77,11 +77,12 @@ module.exports = {
         try {
             return await new Promise(async (resolve, reject) => {
 
-                db.get().collection(collections.USER_COLLECTION).updateOne({ _id: ObjectId(userId), cart: { $not: { $eq: proId } } }, { $push: { cart: ObjectId(proId) } }).then((res) => {
+                db.get().collection(collections.USER_COLLECTION).updateOne({ _id: ObjectId(userId), cart: { $not: { $eq: ObjectId(proId) } } }, { $push: { cart: {proId: ObjectId(proId), quantity: 1}} }).then((res) => {
 
                     console.log(res);
                     if (res.modifiedCount == 0) {
                         console.log("\n Item already exist in the cart \n");
+                        // db.get().collection(collections.USER_COLLECTION).updateOne({})
                         resolve({status: false});
                     }
                     else {

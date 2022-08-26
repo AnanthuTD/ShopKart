@@ -85,7 +85,7 @@ router.get('/cart', (req, res) => {
   userHelpers.getAllProducts(user.details._id).then((products) => {
 
     console.log(products);
-    res.render('users/cart', { products, user ,cart:false})
+    res.render('users/cart', { products, user ,cart:false, no_header: true})
 
   })
 
@@ -111,7 +111,7 @@ router.get('/remove-product/:proId', (req, res) => {
 
     userHelpers.getAllProducts(user.details._id).then((products) => {
 
-      res.render('users/cart',{cart:true, layout:false, products})
+      res.render('users/cart',{cart:true, layout:false, products, no_header: true})
   
     })
    
