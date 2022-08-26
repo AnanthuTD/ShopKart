@@ -9,6 +9,7 @@ module.exports = {
 
     doSignup: (userData) => {
 
+
         return new Promise(async (resolve, reject) => {
 
             userData.password = await bcrypt.hash(userData.password, 12);
@@ -20,6 +21,12 @@ module.exports = {
             else {
                 db.get().collection(collections.USER_COLLECTION).insertOne(userData).then((data) => {
 
+                    console.log(data.insertedId.toString());
+                    let cartObj = {
+                        _id: data.insertedId,
+                        cart: []
+                    }
+                    db.get().collection(collections.CART).insertOne(cartObj)
                     resolve({ status: true });
                     console.log("success");
                 })
@@ -77,23 +84,64 @@ module.exports = {
         try {
             return await new Promise(async (resolve, reject) => {
 
-                db.get().collection(collections.USER_COLLECTION).updateOne({ _id: ObjectId(userId), cart: { $not: { $eq: ObjectId(proId) } } }, { $push: { cart: {proId: ObjectId(proId), quantity: 1}} }).then((res) => {
+                db.get().collection(collections.CART)
+                    .updateOne(
+                        {
+                            _id: ObjectId(userId),
+                            'cart.proId':
+                            {
+                                $not:
+                                {
+                                    $eq:
+                                        ObjectId(proId)
+                                }
+                            }
+                        },
+                        {
+                            $push:
+                            {
+                                cart:
+                                {
+                                    proId:
+                                        ObjectId(proId), quantity: 1
+                                }
+                            }
+                        }
+                    ).then((res) => {
 
-                    console.log(res);
-                    if (res.modifiedCount == 0) {
-                        console.log("\n Item already exist in the cart \n");
-                        // db.get().collection(collections.USER_COLLECTION).updateOne({})
-                        resolve({status: false});
-                    }
-                    else {
-                        console.log('\n Product Successfully added to cart \n');
-                        resolve({status: true});
-                    }
+                        console.log(res);
 
-                   
-                }).catch((err) => {
-                    console.log('err adding products to cart' + err);
-                })
+                        if (res.modifiedCount == 0) {
+                            console.log("\n Item already exist in the cart \n");
+                            db.get().collection(collections.CART)
+                                .updateOne(
+                                    {
+                                        _id: ObjectId(userId), 'cart.proId': ObjectId(proId)
+                                    },
+                                    {
+                                        $inc:
+                                        {
+                                            'cart.$.quantity': 1
+                                        }
+                                    }
+                                ).then((response) => {
+                                    console.log('response');
+                                    console.log(response);
+                                }
+                                ).catch((err) => {
+                                    console.log('inc failed' + err);
+                                })
+
+                            resolve({ status: false });
+                        }
+                        else {
+                            console.log('\n Product Successfully added to cart \n');
+                            resolve({ status: true });
+                        }
+
+                    }).catch((err) => {
+                        console.log('err adding products to cart' + err);
+                    })
 
             });
         } catch (err) {
@@ -102,20 +150,65 @@ module.exports = {
     },
 
     getAllProducts: (userId) => {
-        console.log(userId);
+
         return new Promise(async (resolve, reject) => {
             // get products in the cart
-            db.get().collection(collections.USER_COLLECTION).findOne({ _id: ObjectId(userId) }).then(async (userData) => {
-                console.log(userData);
+            // db.get().collection(collections.CART).findOne({ _id: ObjectId(userId) }).then(async (userData) => {
 
-                if (userData.cart)
-                    var products = await db.get().collection(collections.PRODUCT_COLLECTION).find({ _id: { $in: userData.cart } }).toArray();
+            //     if (userData.cart)
+            //         var products = await db.get().collection(collections.PRODUCT_COLLECTION).find({ _id: { $in: userData.cart } }).toArray();
 
-                console.log(products);
-                resolve(products);
-            }).catch((err) => {
-                console.log('err finding user id in user-collections' + err);
-            })
+
+            //     resolve(products);
+            // }).catch((err) => {
+            //     console.log('err finding user id in user-collections' + err);
+            // })
+
+            var products = await db.get().collection(collections.CART).aggregate([
+
+                {
+                    $match: {
+                        _id: ObjectId(userId)
+                    }
+                },
+                {
+                    $project:
+                    {
+                        products: {
+                            $map: {
+                                input: '$cart',
+                                as: 'cartItems',
+                                in: '$$cartItems.proId'
+                            },
+                        },
+                        _id: 0
+                    }
+                    // gives id products in cart as 'products'(array)
+                },
+
+                // for fetching the product details
+                {
+                    $lookup:
+                    {
+                        from: collections.PRODUCT_COLLECTION,
+                        let: { proList: '$products' },   // assingn array of product ids in cart to proList
+                        pipeline:
+                            [
+                                {
+                                    $match: {
+                                        $expr: {
+                                            $in: ['$_id', '$$proList'] // compare id of products in PRODUCT_COLLECTION to that of cart
+                                        }
+                                    }
+                                }
+                            ],
+                        as: 'products' // array containing the details of products
+                    }
+                }
+            ]).toArray()
+
+            products = products[0].products;
+            resolve(products);
         })
 
 
@@ -124,29 +217,68 @@ module.exports = {
 
     removeProduct: (proId, userId) => {
 
-        console.log(userId);
         return new Promise((resolve, reject) => {
 
-            db.get().collection(collections.USER_COLLECTION).updateOne({ "_id": ObjectId(userId) }, { $pull: { "cart": ObjectId(proId) } }).then((res) => {
-                console.log(res);
-                resolve({ status: true });
+            db.get().collection(collections.CART)
+                .updateOne(
+                    {
+                        "_id": ObjectId(userId)
+                    },
+                    {
+                        $pull:
+                        {
+                            'cart':
+                            {
+                                'proId': ObjectId(proId)
+                            }
+                        }
+                    }
+                ).then((res) => {
 
-            }).catch((err) => {
+                    resolve({ status: true });
 
-                console.log('\n......Remove product faild......\n' + err);
-                reject({ status: false })
-            })
+                }).catch((err) => {
+
+                    console.log('\n......Remove product faild......\n' + err);
+                    reject({ status: false })
+                })
         })
     },
 
     cartCount: (userId) => {
 
-        return new Promise(async (resolve, reject)=>{
+        return new Promise(async (resolve, reject) => {
 
-            console.log('count');
-            var count = await db.get().collection(collections.USER_COLLECTION).aggregate([{
-                $match: { _id: ObjectId(userId) }
-            }, { $project: { count: {$cond: {if: {$isArray: "$cart"}, then:{ $size: "$cart" }, else: 0}} } }]).toArray();
+            var count = await db.get().collection(collections.USER_COLLECTION).
+                aggregate([
+                    {
+                        $match:
+                        {
+                            _id: ObjectId(userId)
+                        }
+                    },
+                    {
+                        $project:
+                        {
+                            count:
+                            {
+                                $cond:
+                                {
+                                    if:
+                                    {
+                                        $isArray: "$cart"
+                                    },
+                                    then:
+                                    {
+                                        $size: "$cart"
+                                    },
+                                    else: 0
+                                }
+                            }
+                        }
+                    }
+                ]).toArray();
+
             resolve(count[0].count);
         })
     }
