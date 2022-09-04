@@ -3,6 +3,8 @@ var express = require('express');
 var router = express.Router();
 const productHelpers = require('../helpers/product-helpers');
 const userHelpers = require('../helpers/user-helpers');
+const { decCartCount } = require('../helpers/user-helpers');
+const { response } = require('express');
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
@@ -12,18 +14,18 @@ router.get('/', function (req, res, next) {
   productHelpers.getAllProducts().then((products) => {
 
     console.log(user);
-    if(user){
-      userHelpers.cartCount(user.details._id).then((response)=>{
+    if (user) {
+      userHelpers.cartCount(user.details._id).then((response) => {
 
-       count = response
-       res.render('users/user-main', { title: 'shop kart', products: products, user: user , count});
+        count = response
+        res.render('users/user-main', { title: 'shop kart', products: products, user: user, count });
       })
     }
-    else{
+    else {
 
-      res.render('users/user-main', { title: 'shop kart', products: products, user: user , count});
+      res.render('users/user-main', { title: 'shop kart', products: products, user: user, count });
     }
-    
+
   })
 
 });
@@ -42,17 +44,16 @@ router.get('/signup', function (req, res, next) {
 });
 
 router.post('/user-signup', function (req, res) {
-  
+
   userHelpers.doSignup(req.body).then((response) => {
 
     if (response.status)
       res.redirect('/login')
-    else
-    {
-      var emailErr = "This email id already exist" ;
-      res.render('users/signup', { title: 'shop kart', emailErr});
+    else {
+      var emailErr = "This email id already exist";
+      res.render('users/signup', { title: 'shop kart', emailErr });
     }
-    
+
   })
 })
 
@@ -64,6 +65,7 @@ router.post('/user-login', function (req, res) {
       var data = response
       req.session.logedIn = true;
       req.session.user_data = data;
+
       res.redirect('/')
     }
     else
@@ -84,8 +86,13 @@ router.get('/cart', (req, res) => {
   let user = req.session.user_data;
   userHelpers.getAllProducts(user.details._id).then((products) => {
 
-    console.log(products);
-    res.render('users/cart', { products, user ,cart:false, no_header: true})
+    var itemCount = products.length;
+    var totalPrice = 0;
+    products.forEach(element => {
+
+      totalPrice += parseFloat(element.price) * parseInt(element.count);
+    }); 
+    res.render('users/cart', { products, user, cart: false, no_header: true, cartId: user.details._id, itemCount, totalPrice})
 
   })
 
@@ -98,7 +105,7 @@ router.get('/add-to-cart/:proId', (req, res) => {
   console.log(user);
   userHelpers.addProduct(user.details._id, proId).then((status) => {
 
-    res.json({status:status.status})
+    res.json({ status: status.status })
   })
 })
 
@@ -111,11 +118,22 @@ router.get('/remove-product/:proId', (req, res) => {
 
     userHelpers.getAllProducts(user.details._id).then((products) => {
 
-      res.render('users/cart',{cart:true, layout:false, products, no_header: true})
-  
+      res.render('users/cart', { cart: true, layout: false, products, no_header: true })
+
     })
-   
+
   })
 })
 
+router.get('/qty/:cartId/:proId', (req, res) => {
+  var cartId = req.params.cartId;
+  var proId = req.params.proId;
+  console.log(proId);
+  userHelpers.decCartCount(cartId, proId).then((response) => {
+
+    console.log("done");
+  })
+  console.log("out");
+  res.json({ status: true })
+})
 module.exports = router;

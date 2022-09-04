@@ -4,6 +4,7 @@ const { Db, ObjectId } = require('mongodb');
 var bcrypt = require('bcrypt');
 const collections = require('../config/collections');
 const { resolve, reject } = require('promise');
+const { response } = require('express');
 
 module.exports = {
 
@@ -152,17 +153,6 @@ module.exports = {
     getAllProducts: (userId) => {
 
         return new Promise(async (resolve, reject) => {
-            // get products in the cart
-            // db.get().collection(collections.CART).findOne({ _id: ObjectId(userId) }).then(async (userData) => {
-
-            //     if (userData.cart)
-            //         var products = await db.get().collection(collections.PRODUCT_COLLECTION).find({ _id: { $in: userData.cart } }).toArray();
-
-
-            //     resolve(products);
-            // }).catch((err) => {
-            //     console.log('err finding user id in user-collections' + err);
-            // })
 
             var products = await db.get().collection(collections.CART).aggregate([
 
@@ -208,6 +198,36 @@ module.exports = {
             ]).toArray()
 
             products = products[0].products;
+
+            var cart = await db.get().collection(collections.CART).aggregate([
+
+                {
+                    $match: {
+                        _id: ObjectId(userId)
+                    }
+                },
+                {
+                    $project:
+                    {
+                        count: {
+                            $map: {
+                                input: '$cart',
+                                as: 'itemCount',
+                                in: '$$itemCount.quantity'
+                            },
+                        },
+                        _id: 0
+                    }
+
+                },
+            ]).toArray();
+            var quantity = cart[0].count;
+            var length = quantity.length;
+            for (i = 0; i < length; i++) {
+                products[i].count = quantity[i];
+                products[i].id = "id" + products[i]._id
+            }
+            console.log(products);
             resolve(products);
         })
 
@@ -249,7 +269,7 @@ module.exports = {
 
         return new Promise(async (resolve, reject) => {
 
-            var count = await db.get().collection(collections.USER_COLLECTION).
+            var count = await db.get().collection(collections.CART).
                 aggregate([
                     {
                         $match:
@@ -257,30 +277,37 @@ module.exports = {
                             _id: ObjectId(userId)
                         }
                     },
-                    {
-                        $project:
-                        {
-                            count:
-                            {
-                                $cond:
-                                {
-                                    if:
-                                    {
-                                        $isArray: "$cart"
-                                    },
-                                    then:
-                                    {
-                                        $size: "$cart"
-                                    },
-                                    else: 0
-                                }
-                            }
-                        }
-                    }
                 ]).toArray();
 
-            resolve(count[0].count);
+            var count = count[0].cart.length
+            resolve(count);
         })
+    },
+
+    decCartCount: (cartId, proId) => {
+
+        console.log(cartId);
+        return new Promise((resolve, reject)=>{
+
+            db.get().collection(collections.CART).
+            updateOne(
+                {
+                    _id: ObjectId(cartId), 'cart.proId': ObjectId(proId)
+                },
+                {
+                    $inc:
+                    {
+                        'cart.$.quantity': -1
+                    }
+                }
+            ).then((res)=>{
+                console.log(res);
+                resolve({status: true})
+            }).catch((err)=>{
+                console.log(err);
+            })
+        })
+        
     }
 
 }
