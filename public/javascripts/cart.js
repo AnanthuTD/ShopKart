@@ -27,7 +27,7 @@ function removeProduct(proId) {
         }
     })
 }
-function incQuantity(proId, id) {
+function incQuantity(proId, id, price) {
 
     $.ajax({
         url: '/add-to-cart/' + proId,
@@ -38,12 +38,16 @@ function incQuantity(proId, id) {
             var quantity = document.getElementById(id).value;
           
             count = parseInt(quantity) + 1
-            $(id).html(count);
             document.getElementById(id).value = count;
+            const elements = document.querySelectorAll('.total-price');
+
+            elements.forEach(el => {
+              el.textContent = parseFloat(el.textContent) + parseFloat(price);
+            });
         }
     })
 }
-function decQuantity(cartId, id, proId) {
+function decQuantity(cartId, id, proId, price) {
 
     var quantity = document.getElementById(id, count).value;
     var count = parseInt(quantity)
@@ -54,9 +58,16 @@ function decQuantity(cartId, id, proId) {
             success: (response) => {
     
                 var quantity = document.getElementById(id).value;
-                count = parseInt(quantity) - 1
-                $(id).html(count);
+                count = parseInt(quantity) - 1;
                 document.getElementById(id).value = count;
+
+                var totalPrice = 0.0
+                var totalPrice = document.getElementById("total-price").innerHTML;
+                const elements = document.querySelectorAll('.total-price');
+    
+                elements.forEach(el => {
+                    el.textContent = parseFloat(el.textContent) - parseFloat(price);
+                });
             }
         })
     }

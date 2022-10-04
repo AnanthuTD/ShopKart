@@ -4,9 +4,17 @@ const { Db, ObjectId } = require('mongodb');
 var bcrypt = require('bcrypt');
 const collections = require('../config/collections');
 const { resolve, reject } = require('promise');
-const { response } = require('express');
+
 
 module.exports = {
+
+    varify: (req)=>{
+        user = req.session.user_data
+        if(user){
+            return true
+        }
+        return false
+    },
 
     doSignup: (userData) => {
 
@@ -22,7 +30,6 @@ module.exports = {
             else {
                 db.get().collection(collections.USER_COLLECTION).insertOne(userData).then((data) => {
 
-                    console.log(data.insertedId.toString());
                     let cartObj = {
                         _id: data.insertedId,
                         cart: []
@@ -110,8 +117,6 @@ module.exports = {
                         }
                     ).then((res) => {
 
-                        console.log(res);
-
                         if (res.modifiedCount == 0) {
                             console.log("\n Item already exist in the cart \n");
                             db.get().collection(collections.CART)
@@ -127,7 +132,7 @@ module.exports = {
                                     }
                                 ).then((response) => {
                                     console.log('response');
-                                    console.log(response);
+
                                 }
                                 ).catch((err) => {
                                     console.log('inc failed' + err);
@@ -227,7 +232,6 @@ module.exports = {
                 products[i].count = quantity[i];
                 products[i].id = "id" + products[i]._id
             }
-            console.log(products);
             resolve(products);
         })
 
@@ -287,27 +291,52 @@ module.exports = {
     decCartCount: (cartId, proId) => {
 
         console.log(cartId);
-        return new Promise((resolve, reject)=>{
+        return new Promise((resolve, reject) => {
 
             db.get().collection(collections.CART).
-            updateOne(
-                {
-                    _id: ObjectId(cartId), 'cart.proId': ObjectId(proId)
-                },
-                {
-                    $inc:
+                updateOne(
                     {
-                        'cart.$.quantity': -1
+                        _id: ObjectId(cartId), 'cart.proId': ObjectId(proId)
+                    },
+                    {
+                        $inc:
+                        {
+                            'cart.$.quantity': -1
+                        }
                     }
-                }
-            ).then((res)=>{
-                console.log(res);
-                resolve({status: true})
-            }).catch((err)=>{
-                console.log(err);
-            })
+                ).then((res) => {
+                    resolve({ status: true })
+                }).catch((err) => {
+                    console.log(err);
+                })
         })
-        
+
+    },
+
+    totalPrice: (products) => {
+
+        var totalPrice = 0;
+        products.forEach(element => {
+
+            totalPrice += parseFloat(element.price) * parseInt(element.count);
+        })
+        return totalPrice;
+    },
+
+    cartProductList: (user_id) => {
+        console.log("in");
+
+        return new Promise((resolve, reject) => {
+            db.get().collection(collections.CART).findOne({ _id: user_id }).then((res) => {
+                console.log(res);
+            })
+        }).then(()=>{
+            resolve()
+        })
+    },
+
+    placeOrder: (order) => {
+
     }
 
 }

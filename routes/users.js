@@ -9,6 +9,7 @@ const { response } = require('express');
 /* GET home page. */
 router.get('/', function (req, res, next) {
 
+  req.session.history = req.originalUrl;
   let count = 0
   let user = req.session.user_data;
   productHelpers.getAllProducts().then((products) => {
@@ -66,7 +67,7 @@ router.post('/user-login', function (req, res) {
       req.session.logedIn = true;
       req.session.user_data = data;
 
-      res.redirect('/')
+      res.redirect(req.session.history)
     }
     else
       res.redirect('/login')
@@ -82,17 +83,13 @@ router.get('/logout', (req, res) => {
 })
 
 router.get('/cart', (req, res) => {
-
+  req.session.history = req.originalUrl;
   let user = req.session.user_data;
   userHelpers.getAllProducts(user.details._id).then((products) => {
 
     var itemCount = products.length;
-    var totalPrice = 0;
-    products.forEach(element => {
-
-      totalPrice += parseFloat(element.price) * parseInt(element.count);
-    }); 
-    res.render('users/cart', { products, user, cart: false, no_header: true, cartId: user.details._id, itemCount, totalPrice})
+    var totalPrice = userHelpers.totalPrice(products);
+    res.render('users/cart', { products, user, cart: false, no_header: true, cartId: user.details._id, itemCount, totalPrice })
 
   })
 
@@ -135,5 +132,25 @@ router.get('/qty/:cartId/:proId', (req, res) => {
   })
   console.log("out");
   res.json({ status: true })
+})
+
+router.post("/checkout-address", (req, res) => {
+  console.log(req.body)
+})
+
+router.get('/checkout', (req, res) => {
+  res.render('users/checkout', {user})
+})
+
+router.get("/place-order", (req, res) => {
+  userHelpers.cartProductList(user.details._id).then(()=>{
+    
+    console.log("out");
+
+    // userHelpers.placeOrder(list).then((response)=>{
+
+    // })
+  })
+  
 })
 module.exports = router;

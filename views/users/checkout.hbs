@@ -1,0 +1,318 @@
+<div class="row">
+    <div class="col-md-8 mb-4">
+        <div class="card mb-4">
+            <div class="card-header py-3">
+                <h5 class="mb-0">Address</h5>
+            </div>
+            <div class="card-body">
+                <form id="address_form" method="post" enctype="multipart/form-data">
+                    <input name="user_id"
+                           type="text"
+                           value="{{user.details._id}}"
+                           class="form-control"/>
+                    <span class="d-flex justify-content-end">EDIT ADDRESS</span>
+                    <div >
+                        <div >
+                            <button class="btn btn-primary" type="button">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+                                    <g fill="none" fill-rule="evenodd">
+                                    <path d="M0 0h16v16H0z"></path>
+                                    <path class="" fill="#fff" d="M8 5.3a2.7 2.7 0 1 0 0 5.4 2.7 2.7 0 1 0 0-5.4zm6 2A6 6 0 0 0 8.7 2V.7H7.3V2A6 6 0 0 0 2 7.3H.7v1.4H2A6 6 0 0 0 7.3 14v1.3h1.4V14A6 6 0 0 0 14 8.7h1.3V7.3H14zm-6 5.4A4.7 4.7 0 0 1 3.3 8 4.7 4.7 0 0 1 8 3.3 4.7 4.7 0 0 1 12.7 8 4.7 4.7 0 0 1 8 12.7z">
+                                    </path>
+                                    </g>
+                                </svg>
+                                Use my current location
+                            </button>
+                        </div>
+                        <div >
+                            <div >
+                                <input type="text"
+                                       class="form-control"
+                                       name="name"
+                                       required=""
+                                       autocomplete="name"
+                                       tabindex="1"
+                                       value="Ananthu T D">
+                                <label for="name">Name</label>
+                            </div>
+                            <div >
+                                <input type="text"
+                                       class="form-control"
+                                       name="phone"
+                                       required=""
+                                       maxlength="10"
+                                       autocomplete="tel"
+                                       tabindex="2">
+                                <label for="phone">10-digit mobile number</label>
+                            </div>
+                        </div>
+                        <div >
+                            <div >
+                                <input type="text"
+                                       class="form-control"
+                                       name="pincode"
+                                       required=""
+                                       maxlength="6"
+                                       autocomplete="postal-code"
+                                       tabindex="3"
+                                       value="682021">
+                                <label for="pincode">Pincode</label>
+                            </div>
+                            <div >
+                                <input type="text"
+                                       class="form-control"
+                                       required=""
+                                       name="addressLine2"
+                                       tabindex="4"
+                                       value="Vadacode central juma masjid"/>
+                                <label for="addressLine2">Locality</label>
+                            </div>
+                        </div>
+                        <div>
+                            <div>
+                                <div>
+                                    <textarea class="form-control"
+                                              name="addressLine1"
+                                              rows="4"
+                                              cols="10"
+                                              tabindex="5"
+                                              required=""
+                                              autocomplete="street-address">Thaivalappil house</textarea>
+                                    <label for="addressLine1" class="_1osQq7 -FxG57">Address (Area and Street)</label>
+                                </div>
+                                <div></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div>
+                                <div>
+                                    <input type="text"
+                                           class="form-control"
+                                           name="city"
+                                           required=""
+                                           autocomplete="city"
+                                           tabindex="6"
+                                           value="Kalamassery">
+                                    <label for="city">City/District/Town</label>
+                                </div>
+                                <div></div>
+                            </div>
+                            <div>
+                                <div>
+                                    <div>State</div>
+                                    <div>
+                                        <select name="state" required="" tabindex="7">
+                                            <option value="" disabled="">
+                                                --Select State--
+                                            </option>
+                                            <option value="Andaman &amp; Nicobar Islands">
+                                                Andaman &amp; Nicobar Islands
+                                            </option>
+                                            <option value="Andhra Pradesh">
+                                                Andhra Pradesh
+                                            </option>
+                                            <option value="Arunachal Pradesh">
+                                                Arunachal Pradesh
+                                            </option>
+                                            <option value="Assam">
+                                                Assam
+                                            </option>
+                                            <option value="Bihar">
+                                                Bihar
+                                            </option>
+                                            <option value="Chandigarh">
+                                                Chandigarh
+                                            </option>
+                                            <option value="Chhattisgarh">
+                                                Chhattisgarh
+                                            </option>
+                                            <option value="Dadra &amp; Nagar Haveli &amp; Daman &amp; Diu">
+                                                Dadra &amp; Nagar Haveli &amp; Daman &amp; Diu
+                                            </option>
+                                            <option value="Delhi">
+                                                Delhi
+                                            </option>
+                                            <option value="Goa">
+                                                Goa
+                                            </option>
+                                            <option value="Gujarat">
+                                                Gujarat
+                                            </option>
+                                            <option value="Haryana">
+                                                Haryana
+                                            </option>
+                                            <option value="Himachal Pradesh">
+                                                Himachal Pradesh
+                                            </option>
+                                            <option value="Jammu &amp; Kashmir">
+                                                Jammu &amp; Kashmir
+                                            </option>
+                                            <option value="Jharkhand">
+                                                Jharkhand
+                                            </option>
+                                            <option value="Karnataka">
+                                                Karnataka
+                                            </option>
+                                            <option value="Kerala">
+                                                Kerala
+                                            </option>
+                                            <option value="Ladakh">
+                                                Ladakh
+                                            </option>
+                                            <option value="Lakshadweep">
+                                                Lakshadweep
+                                            </option>
+                                            <option value="Madhya Pradesh">
+                                                Madhya Pradesh
+                                            </option>
+                                            <option value="Maharashtra">
+                                                Maharashtra
+                                            </option>
+                                            <option value="Manipur">
+                                                Manipur
+                                            </option>
+                                            <option value="Meghalaya">
+                                                Meghalaya
+                                            </option>
+                                            <option value="Mizoram">
+                                                Mizoram
+                                            </option>
+                                            <option value="Nagaland">
+                                                Nagaland
+                                            </option>
+                                            <option value="Odisha">
+                                                Odisha
+                                            </option>
+                                            <option value="Puducherry">
+                                                Puducherry
+                                            </option>
+                                            <option value="Punjab">
+                                                Punjab
+                                            </option>
+                                            <option value="Rajasthan">
+                                                Rajasthan
+                                            </option>
+                                            <option value="Sikkim">
+                                                Sikkim
+                                            </option>
+                                            <option value="Tamil Nadu">
+                                                Tamil Nadu
+                                            </option>
+                                            <option value="Telangana">
+                                                Telangana
+                                            </option>
+                                            <option value="Tripura">
+                                                Tripura
+                                            </option>
+                                            <option value="Uttarakhand">
+                                                Uttarakhand
+                                            </option>
+                                            <option value="Uttar Pradesh">
+                                                Uttar Pradesh
+                                            </option>
+                                            <option value="West Bengal">
+                                                West Bengal
+                                            </option>
+                                        </select>
+                                        <span></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <div>
+                                <input type="text"
+                                       class="form-control"
+                                       name="landmark"
+                                       autocomplete="off"
+                                       tabindex="8"
+                                       maxlength="200"
+                                       value="">
+                                <label for="landmark" class="_1osQq7">Landmark (Optional)</label>
+                            </div>
+                            <div class="_1lRtwc _1Jqgld">
+                                <input type="text"
+                                       class="form-control"
+                                       name="alternatePhone"
+                                       autocomplete="off"
+                                       tabindex="9"
+                                       maxlength="10"
+                                       value="">
+                                <label for="alternatePhone" class="_1osQq7">Alternate Phone (Optional)</label>
+                            </div>
+                        </div>
+                        <div class="yI40P1">
+                            <p class="_2tiHgk">Address Type</p>
+                            <div class="_3TMnFu">
+                                <div>
+                                    <label for="HOME" class="_2Fn-Ln _3iI7Qn _3L7Pww">
+                                        <input type="radio"
+                                               class="form-control"
+                                               name="locationTypeTag"
+                                               readonly=""
+                                               id="HOME"
+                                               checked="">
+                                        <div class="_1XFPmK"></div>
+                                        <div class="_2jIO64">
+                                            <span>Home (All day delivery)</span>
+                                        </div>
+                                    </label>
+                                    <label for="WORK" class="_2Fn-Ln _3iI7Qn">
+                                        <input type="radio"
+                                               class="form-control"
+                                               name="locationTypeTag"
+                                               readonly=""
+                                               id="WORK">
+                                        <div class="_1XFPmK"></div>
+                                        <div class="_2jIO64">
+                                            <span>Work (Delivery between 10 AM - 5 PM)</span>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <button type="submit" tabindex="10">Save and Deliver Here</button>
+                            <button class="_2KpZ6l _8NNVow" type="button" tabindex="11">Cancel</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card mb-4">
+            <div class="card-header py-3">
+                <h5 class="mb-0">Summary</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0">
+                        Products
+                        <span>$53.98</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                        Shipping
+                        <span>Gratis</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 mb-3">
+                        <div>
+                            <strong>Total amount</strong>
+                            <strong>
+                                <p class="mb-0">
+                                    (including VAT)
+                                </p>
+                            </strong>
+                        </div>
+                        <span><strong>$53.98</strong></span>
+                    </li>
+                </ul>
+                <form action="/place-order">
+                    <button id="purchase"  type="submit" class="btn btn-primary btn-lg btn-block">
+                        Make purchase
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
