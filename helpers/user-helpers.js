@@ -8,9 +8,9 @@ const { resolve, reject } = require('promise');
 
 module.exports = {
 
-    varify: (req)=>{
+    varify: (req) => {
         user = req.session.user_data
-        if(user){
+        if (user) {
             return true
         }
         return false
@@ -284,6 +284,7 @@ module.exports = {
                 ]).toArray();
 
             var count = count[0].cart.length
+
             resolve(count);
         })
     },
@@ -323,20 +324,75 @@ module.exports = {
         return totalPrice;
     },
 
-    cartProductList: (user_id) => {
-        console.log("in");
+    // cartProductList: (user_id)=>{
+    //     return new Promise(async function (resolve, reject) {
+    //         var cart = await db.get().collection(collections.CART).findOne({ _id: ObjectId(user_id) }, { projection: { _id: 0 } });
+    //         // var list = await cart[0];
+    //         cart = cart.cart
+    //         var i = 0
+    //         var list = []
+    //         cart.forEach(element => {
+    //             list[i++] = element.proId.toString()
+    //         });
+    //         console.log(list);
+    //         db.get().collection(collections.ORDER).insertOne({ proList: list })
+    //         resolve(list)
+    //     })
+    // },
 
-        return new Promise((resolve, reject) => {
-            db.get().collection(collections.CART).findOne({ _id: user_id }).then((res) => {
-                console.log(res);
-            })
-        }).then(()=>{
+    placeOrder: (user_id) => {
+
+        return new Promise(async (resolve, reject) => {
+
+            var products = await db.get().collection(collections.CART).aggregate([
+                {
+                    $match: {
+                        _id: ObjectId(user_id)
+                    }
+                },
+                {
+                    $project: {
+                        proId: {
+                            $map: {
+                                input: '$cart',
+                                as: 'proId',
+                                in: '$$proId.proId'
+                            },
+                        },
+                        
+                        _id: 0
+                    }
+                },
+                
+                {
+                    $lookup:
+                    {
+                        from: collections.PRODUCT_COLLECTION,
+                        localField: "proId",
+                        foreignField: "_id",
+                        as: 'products' // array containing the details of products
+                    }
+
+
+                },
+                {
+                    $project:
+                        { proId: 0 }
+                }
+
+
+            ]).toArray()
+
+            console.log(products);
             resolve()
         })
+
     },
 
-    placeOrder: (order) => {
-
+    addAddress: (address) => {
+        return new Promise((resolve, reject) => {
+            db.get().collection(collections.ORDER).insertOne(address)
+        })
     }
 
 }

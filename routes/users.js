@@ -17,15 +17,17 @@ router.get('/', function (req, res, next) {
     console.log(user);
     if (user) {
       userHelpers.cartCount(user.details._id).then((response) => {
-
+        
+        console.log(count);
         count = response
-        res.render('users/user-main', { title: 'shop kart', products: products, user: user, count });
+      
+        // res.render('users/user-main', { title: 'shop kart', products: products, user: user, count });
       })
     }
-    else {
 
-      res.render('users/user-main', { title: 'shop kart', products: products, user: user, count });
-    }
+    console.log(count);
+    res.render('users/user-main', { title: 'shop kart', products: products, user: user, count: count });
+
 
   })
 
@@ -85,15 +87,20 @@ router.get('/logout', (req, res) => {
 router.get('/cart', (req, res) => {
   req.session.history = req.originalUrl;
   let user = req.session.user_data;
-  userHelpers.getAllProducts(user.details._id).then((products) => {
+  if (user) {
+    userHelpers.getAllProducts(user.details._id).then((products) => {
 
-    var itemCount = products.length;
-    var totalPrice = userHelpers.totalPrice(products);
-    res.render('users/cart', { products, user, cart: false, no_header: true, cartId: user.details._id, itemCount, totalPrice })
+      var itemCount = products.length;
+      var totalPrice = userHelpers.totalPrice(products);
+      res.render('users/cart', { products, user, cart: false, no_header: true, cartId: user.details._id, itemCount, totalPrice })
 
-  })
-
-})
+    })
+  }
+  else {
+    res.redirect('/login')
+  }
+}
+)
 
 router.get('/add-to-cart/:proId', (req, res) => {
 
@@ -136,21 +143,32 @@ router.get('/qty/:cartId/:proId', (req, res) => {
 
 router.post("/checkout-address", (req, res) => {
   console.log(req.body)
+  userHelpers.addAddress(req.body).then(() => {
+
+  })
 })
 
 router.get('/checkout', (req, res) => {
-  res.render('users/checkout', {user})
+  let user = req.session.user_data;
+  res.render('users/checkout', { user })
 })
 
-router.get("/place-order", (req, res) => {
-  userHelpers.cartProductList(user.details._id).then(()=>{
-    
-    console.log("out");
+// router.get('/place-order', (req, res) => {
+//   userHelpers.cartProductList(user.details._id).then(() => {
+//     let user = req.session.user_data;
+//     console.log("out");
+//     res.render('users/order-status', { user })
+//   })
 
-    // userHelpers.placeOrder(list).then((response)=>{
-
-    // })
+// })
+router.get('/place-order', (req, res) => {
+  let user = req.session.user_data;
+  console.log("\nplace order\n");
+  userHelpers.placeOrder(user.details._id).then(() => {
+    console.log("\n order placed\n");
   })
-  
+
+  res.render('users/order-status', { user })
+
 })
 module.exports = router;
