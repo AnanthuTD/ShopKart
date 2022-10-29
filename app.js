@@ -9,6 +9,7 @@ var adminRouter = require('./routes/admin');
 var usersRouter = require('./routes/users');
 var promise = require('promise');
 var handleBars = require('handlebars')
+var helpers = require('handlebars-helpers')();
 handleBars.registerHelper("inc", (value) => {
   return parseInt(value) + 1;
 })

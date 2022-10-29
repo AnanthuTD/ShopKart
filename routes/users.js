@@ -3,8 +3,9 @@ var express = require('express');
 var router = express.Router();
 const productHelpers = require('../helpers/product-helpers');
 const userHelpers = require('../helpers/user-helpers');
-const { decCartCount } = require('../helpers/user-helpers');
+const { decCartCount, totalPrice } = require('../helpers/user-helpers');
 const { response } = require('express');
+const { get } = require('../config/connection');
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
@@ -14,21 +15,15 @@ router.get('/', function (req, res, next) {
   let user = req.session.user_data;
   productHelpers.getAllProducts().then((products) => {
 
-    console.log(user);
     if (user) {
       userHelpers.cartCount(user.details._id).then((response) => {
-        
-        console.log(count);
+
         count = response
-      
-        // res.render('users/user-main', { title: 'shop kart', products: products, user: user, count });
+        res.render('users/user-main', { title: 'shop kart', products: products, user: user, count });
       })
     }
-
-    console.log(count);
-    res.render('users/user-main', { title: 'shop kart', products: products, user: user, count: count });
-
-
+    else
+      res.render('users/user-main', { title: 'shop kart', products, user, count });
   })
 
 });
@@ -94,6 +89,10 @@ router.get('/cart', (req, res) => {
       var totalPrice = userHelpers.totalPrice(products);
       res.render('users/cart', { products, user, cart: false, no_header: true, cartId: user.details._id, itemCount, totalPrice })
 
+    }).catch((emptyCart) => {
+      var itemCount = 0
+      var totalPrice = 0.0
+      res.render('users/cart', { products: emptyCart, user, cart: false, no_header: true, cartId: user.details._id, itemCount, totalPrice })
     })
   }
   else {
@@ -106,7 +105,7 @@ router.get('/add-to-cart/:proId', (req, res) => {
 
   let user = req.session.user_data;
   var proId = req.params.proId;
-  console.log(user);
+
   userHelpers.addProduct(user.details._id, proId).then((status) => {
 
     res.json({ status: status.status })
@@ -132,43 +131,62 @@ router.get('/remove-product/:proId', (req, res) => {
 router.get('/qty/:cartId/:proId', (req, res) => {
   var cartId = req.params.cartId;
   var proId = req.params.proId;
-  console.log(proId);
+
   userHelpers.decCartCount(cartId, proId).then((response) => {
 
-    console.log("done");
   })
-  console.log("out");
+
   res.json({ status: true })
 })
 
 router.post("/checkout-address", (req, res) => {
-  console.log(req.body)
+  let user = req.session.user_data;
+
   userHelpers.addAddress(req.body).then(() => {
+
+    req.session.user_data.details.address1 = true
+    let user = req.session.user_data;
+    res.render('users/checkout', { layout: false, no_header: true, user })
 
   })
 })
 
 router.get('/checkout', (req, res) => {
+
   let user = req.session.user_data;
   res.render('users/checkout', { user })
 })
 
-// router.get('/place-order', (req, res) => {
-//   userHelpers.cartProductList(user.details._id).then(() => {
-//     let user = req.session.user_data;
-//     console.log("out");
-//     res.render('users/order-status', { user })
-//   })
-
-// })
 router.get('/place-order', (req, res) => {
   let user = req.session.user_data;
+  var userId = user.details._id
   console.log("\nplace order\n");
-  userHelpers.placeOrder(user.details._id).then(() => {
-    console.log("\n order placed\n");
+  userHelpers.placeOrder(userId).then((status) => {
+
+    if (status) {
+      console.log("\n order placed\n");
+
+      userHelpers.orderDetails(null, status.orderId).then((products) => {
+
+        userHelpers.removeCart(userId)
+        res.render('users/order-status', { user, products: products })
+      })
+    }
+    else {
+      console.log("\n Faild to place order \n");
+    }
+
   })
 
-  res.render('users/order-status', { user })
+})
+router.get('/orders', (req, res) => {
+  let user = req.session.user_data;
+  var userId = user.details._id
 
+  userHelpers.orderDetails(userId, []).then((products)=>{
+    console.log('order details : '+ products);
+    res.render('users/orders', {user, products})
+  })
+ 
 })
 module.exports = router;

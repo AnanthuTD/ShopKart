@@ -29,8 +29,7 @@ router.get('/add-products-page', function (req, res, next) {
 });
 
 router.post('/add-products', (req, res, next) => {
-  // console.log(req.body)
-  // console.log(req.files.image.name)
+
   var fileExt = path.extname(req.files.image.name)
 
   productHelpers.addProduct(req.body).then((id) => {
@@ -52,7 +51,6 @@ router.post('/add-products', (req, res, next) => {
 
 router.get('/deleteProduct/:proId', (req, res) => {
   var proId = req.params.proId;
-  console.log(proId);
   productHelpers.deleteProduct(proId).then((response) => {
     if (response.status) {
       res.redirect('back');
@@ -63,10 +61,9 @@ router.get('/deleteProduct/:proId', (req, res) => {
 router.get('/edit-product/:proId', (req, res) => {
 
   var proId = req.params.proId;
-  console.log(proId);
+
   productHelpers.getProduct(proId).then((response) => {
 
-    console.log(response);
     res.render('admin/edit-product', { product: response })
   })
 })
@@ -76,20 +73,17 @@ router.post('/edit-product/:id', (req, res) => {
 
   var id = req.params.id;
   var fileExt = path.extname(req.files.image.name);
-  console.log(req.body, id)
 
   productHelpers.editProduct(req.body, id).then((stat) => {
 
     let img = req.files.image;
     let imgName = id + fileExt;
-    console.log('\nuploading\n');
 
     productHelpers.addImage(imgName, id);
 
     img.mv("./public/products/" + imgName, (err, done) => {
 
       if (err) throw err;
-      else console.log('success uploading file')
     });
   })
   res.redirect('/admin/products')

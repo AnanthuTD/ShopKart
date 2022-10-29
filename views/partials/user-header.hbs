@@ -7,7 +7,6 @@
         padding-right: 13px!important;
     }
 </style>
-
 <header class="row nav">
     <div class="search col-5 pe-0">
         <a href="/">
@@ -22,7 +21,7 @@
         <a href="/login" id="login-btn">
             <button type="button" class="p-0">
                 {{#if user }}
-                   {{user.details.first-name}}
+                    {{user.details.first-name}}
                 {{else}}
                     Login
                 {{/if}}
@@ -50,7 +49,7 @@
                 </a>
             </div>
             <div class="row">
-                <a href="">
+                <a href="/orders">
                     <div>
                         <i class="bi bi-archive-fill blue"></i>Orders
                     </div>
@@ -131,8 +130,13 @@
         </div>
     </div>
     <div class="me-5">
-        <button type="button" class="btn shadow-none position-relative text-white py-0" id="cart" onclick="loadCart()">Cart
-            <span class="position-absolute top-0 start-100 translate-middle bg-danger rounded-circle" id="cart-count">
+        <button type="button"
+                class="btn shadow-none position-relative text-white py-0"
+                id="cart"
+                onclick="loadCart()">
+            Cart
+            <span class="position-absolute top-0 start-100 translate-middle bg-danger rounded-circle"
+                  id="cart-count">
                 {{count}}
             </span>
         </button>

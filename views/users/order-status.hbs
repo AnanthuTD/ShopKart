@@ -26,7 +26,7 @@
         line-height: 200px;
         margin-left:-15px;
       }
-      .card {
+      .card-1 {
         background: white;
         padding: 60px;
         border-radius: 4px;
@@ -35,20 +35,36 @@
         margin: 0 auto;
       }
 </style>
-<div class="body-o">
-    <div class="card">
-        <div style="border-radius:200px;
-                    height:200px;
-                    width:200px;
-                    background: #F8FAF5;
-                    margin:0 auto;">
-            <i class="checkmark i-o">✓</i>
-        </div>
-        <h1 class="h1-o">Success</h1>
-        <p class="p-o">
-            We received your purchase request;
-            <br/>
-            we'll be in touch shortly!
-        </p>
+<div class="body-o row">
+  <div class="card-1">
+    <div style="border-radius:200px;
+                height:200px;
+                width:200px;
+                background: #F8FAF5;
+                margin:0 auto;">
+      <i class="checkmark i-o">✓</i>
     </div>
+    <h1 class="h1-o">Success</h1>
+    <p class="p-o">
+      We received your purchase request;
+      <br/>
+      we'll be in touch shortly!
+    </p>
+  </div>
 </div>
+{{!-- products --}}
+<section class="d-flex flex-column align-items-center">
+  {{#each products }}
+    <div class="col-md-3 col-sm-4 m-3">
+      <div class="card h-100">
+        <img class="card-img-top img-fluid"
+             src="/products/{{this.img}}"
+             alt="Card image cap"/>
+        <div class="card-body">
+          <h5 class="card-title">{{this.name}}</h5>
+          <h6 class="card-text">{{this.price}}</h6>
+        </div>
+      </div>
+    </div>
+  {{/each}}
+</section>

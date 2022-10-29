@@ -27,7 +27,6 @@ module.exports = {
 
         db.get().collection(collections.PRODUCT_COLLECTION).updateOne(myquery, newvalues, function (err, res) {
             if (err) throw err;
-            console.log(res);
         });
     },
 
@@ -43,13 +42,13 @@ module.exports = {
     deleteProduct: (proId) => {
 
         return new Promise((resolve, reject) => {
-            console.log(proId);
-            db.get().collection(collections.PRODUCT_COLLECTION).deleteOne({ _id:  ObjectId(proId) }).then((res) => {
+
+            db.get().collection(collections.PRODUCT_COLLECTION).deleteOne({ _id: ObjectId(proId) }).then((res) => {
                 console.log('\n.....Product deleted successfully.....\n');
-                console.log(res);
+
                 resolve({ status: true });
             }).catch((err) => {
-                console.log('\n......Product deletion faild......\n'+err);
+                console.log('\n......Product deletion faild......\n' + err);
                 reject({ status: false })
             })
         })
@@ -59,7 +58,7 @@ module.exports = {
 
         return new Promise(async (resolve, reject) => {
 
-            db.get().collection(collections.PRODUCT_COLLECTION).findOne({ _id:  ObjectId(proId) }).then((res) => {
+            db.get().collection(collections.PRODUCT_COLLECTION).findOne({ _id: ObjectId(proId) }).then((res) => {
 
                 resolve(res);
             })
@@ -70,13 +69,13 @@ module.exports = {
     },
 
     editProduct: (product, id) => {
-        console.log(product);
+
         return new Promise((resolve, reject) => {
 
-            db.get().collection(collections.PRODUCT_COLLECTION).updateOne({ _id:  ObjectId(id) }, { $set: product }).then((response) => {
+            db.get().collection(collections.PRODUCT_COLLECTION).updateOne({ _id: ObjectId(id) }, { $set: product }).then((response) => {
 
-                console.log(response)
-                resolve("success");
+
+                resolve("\nedit success\n");
             })
         })
     }
