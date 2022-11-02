@@ -26,6 +26,7 @@
     "morgan": "~1.9.1",
     "nodemon": "^2.0.19",
     "promise": "^8.1.0",
+    "razorpay": "^2.8.3",
     "stringify-json": "^2.0.0"
   }
 }

@@ -1,4 +1,5 @@
 var MongoClient = require('mongodb').MongoClient;
+const collections = require('./collections');
 const status = {
     db:null
 }
@@ -15,14 +16,13 @@ module.exports.connect = function (done) {
         console.log("Database connected!");
         status.db = db_url.db(dbname);
         console.log("Database created!");
-        // db.createCollection("products", (err, res)=>{
-        //     if (err) throw err;
-
-        //     console.log("Collection created!");
-        // })
+        // creating index for search
+        status.db.collection(collections.PRODUCT_COLLECTION).createIndex({ name: "text" })
+        
         return done()
 
     });
+    
 
 }
 

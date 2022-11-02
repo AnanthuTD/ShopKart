@@ -12,7 +12,10 @@
         <a href="/">
             <img src="/images/flipkart-logo.png" alt=""/>
         </a>
-        <input type="text" id="form1" placeholder="Search" />
+        <input type="text"
+               id="form1"
+               placeholder="Search"
+               onkeyup="productSearch(this.value)"/>
         <button type="submit">
             <i class="bi bi-search"></i>
         </button>
@@ -144,3 +147,20 @@
 </div>
 {{/unless}}
 </header>
+<script>
+    function productSearch(search){
+        search = search.trim();
+       
+        $.ajax({
+        type: "post",
+        url: "/search-products",
+        data: {
+            search
+        },
+        success: function (response) {
+            console.log(response)
+        }
+    });
+        
+    }
+</script>

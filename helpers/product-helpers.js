@@ -13,6 +13,7 @@ module.exports = {
             db.get().collection(collections.PRODUCT_COLLECTION).insertOne(product).then((data) => {
 
                 var id = (data.insertedId).toString();
+                db.get().collection(collections.PRODUCT_COLLECTION).createIndex({ name: "text" });
 
                 resolve(id)
             }).catch((err) => { console.log('product insertion faild' + err); })

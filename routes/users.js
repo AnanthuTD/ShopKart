@@ -14,10 +14,8 @@ router.get('/', function (req, res, next) {
   let count = 0
   let user = req.session.user_data;
   productHelpers.getAllProducts().then((products) => {
-
     if (user) {
       userHelpers.cartCount(user.details._id).then((response) => {
-
         count = response
         res.render('users/user-main', { title: 'shop kart', products: products, user: user, count });
       })
@@ -25,7 +23,6 @@ router.get('/', function (req, res, next) {
     else
       res.render('users/user-main', { title: 'shop kart', products, user, count });
   })
-
 });
 
 router.get('/login', function (req, res, next) {
@@ -91,7 +88,7 @@ router.get('/cart', (req, res) => {
 
     }).catch((emptyCart) => {
       var itemCount = 0
-      var totalPrice = 0.0
+      var totalPrice = 0
       res.render('users/cart', { products: emptyCart, user, cart: false, no_header: true, cartId: user.details._id, itemCount, totalPrice })
     })
   }
@@ -152,41 +149,71 @@ router.post("/checkout-address", (req, res) => {
 })
 
 router.get('/checkout', (req, res) => {
-
   let user = req.session.user_data;
-  res.render('users/checkout', { user })
+
+  userHelpers.getAllProducts(user.details._id).then((products) => {
+
+    var total = userHelpers.totalPrice(products);
+    res.render('users/checkout', { user, total, products })
+  })
+
 })
 
 router.get('/place-order', (req, res) => {
+
   let user = req.session.user_data;
   var userId = user.details._id
   console.log("\nplace order\n");
-  userHelpers.placeOrder(userId).then((status) => {
+  userHelpers.placeOrder(userId).then((response) => {
 
-    if (status) {
-      console.log("\n order placed\n");
-
-      userHelpers.orderDetails(null, status.orderId).then((products) => {
-
-        userHelpers.removeCart(userId)
-        res.render('users/order-status', { user, products: products })
+    if (response.status) {
+      userHelpers.orderDetails(null, response.orderId).then((products) => {
+        var i = 0;
+        products.forEach(element => {
+          element.count = response.quantity[i++]
+        });
+        var total = userHelpers.totalPrice(products);
+        userHelpers.generateRazorpay(total, response.orderId).then((response) => {
+          res.json(response)
+        }).catch((err) => { console.error(err); })
       })
     }
     else {
       console.log("\n Faild to place order \n");
     }
-
   })
-
 })
 router.get('/orders', (req, res) => {
   let user = req.session.user_data;
   var userId = user.details._id
 
-  userHelpers.orderDetails(userId, []).then((products)=>{
-    console.log('order details : '+ products);
-    res.render('users/orders', {user, products})
+  userHelpers.orderDetails(userId, []).then((products) => {
+    res.render('users/orders', { user, products })
   })
- 
+})
+
+router.post('/varify_payment', (req, res) => {
+  let user = req.session.user_data;
+  var userId = user.details._id
+  var orderDt = req.body;
+  
+  userHelpers.varifyPayment(orderDt).then(() => {
+    userHelpers.removeCart(userId);
+    userHelpers.changOrderStatus(orderDt['order[receipt]'])
+    res.json({ status: true })
+
+  }).catch((err) => {
+
+    console.error(err);
+    res.json({ status: false })
+  })
+})
+router.post('/search-products', (req, res)=>{
+  console.log("search");
+  var search = req.body.search
+  userHelpers.searchProducts(search).then((response)=>{
+    console.log(response);
+    res.json({response})
+  })
 })
 module.exports = router;

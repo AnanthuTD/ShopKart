@@ -4,7 +4,14 @@ const { Db, ObjectId } = require('mongodb');
 var bcrypt = require('bcrypt');
 const collections = require('../config/collections');
 const { resolve, reject } = require('promise');
-
+var Razorpay = require('razorpay');
+const { search } = require('../routes/users');
+const { query } = require('express');
+var instance = new Razorpay({
+    key_id: 'rzp_test_qjRHUAXRk6sVu8',
+    key_secret: 'g17l3MkiyWLa38e4IyHLTbPt'
+})
+let RazorpayOrderId = ''
 
 module.exports = {
 
@@ -314,11 +321,14 @@ module.exports = {
 
     totalPrice: (products) => {
 
-        var totalPrice = 0;
-        products.forEach(element => {
 
-            totalPrice += parseFloat(element.price) * parseInt(element.count);
+        var totalPrice = 0;
+        products.forEach(async element => {
+            price = parseInt(element.price)
+            count = parseInt(element.count)
+            totalPrice += price * count;
         })
+
         return totalPrice;
     },
 
@@ -342,14 +352,6 @@ module.exports = {
                         },
                     }
                 },
-
-                {
-                    $unwind:
-                        "$proId"
-
-                },
-                { "$set": { "proId": ["$proId"] } },
-
                 {
                     $lookup: {
                         from: collections.USER_COLLECTION,
@@ -371,34 +373,32 @@ module.exports = {
                         "$address"
 
                 },
-                { $addFields: { userId: ObjectId(user_id), "Order_date": "$$NOW" } },
-                // {
-                //     $merge: {
-                //         into: collections.ORDER,
-                //     }
-                // },
+                { $addFields: { userId: ObjectId(user_id), "Order_date": "$$NOW", 'status': 'pending' } },
 
             ]).toArray();
 
-            size = 0
-            insertId = {}
+            var i = 0
+            var quantity = [0]
+            order = order[0]
+            order.proId.forEach(element => {
+                quantity[i++] = element.quantity
+            });
 
-            await db.get().collection(collections.ORDER).insertMany(order).catch((err) => {
+            var orderId = ''
+            await db.get().collection(collections.ORDER).insertOne(order).catch((err) => {
                 console.error(err);
             }).then((res) => {
-                insertId = res
-                size = Object.keys(res.insertedIds).length;
+                console.log(res);
+                orderId = (res.insertedId)
             })
 
-            var orderId = Object.values(insertId.insertedIds)
-
-
             if (order) {
-                var status = {
+                var response = {
                     status: true,
-                    orderId: orderId
+                    orderId: orderId,
+                    quantity: quantity
                 }
-                resolve(status)
+                resolve(response)
             }
             else
                 reject({ status: false })
@@ -414,7 +414,7 @@ module.exports = {
                     $match: {
                         $or: [
                             { "userId": ObjectId(user_id) },
-                            { _id: { $in: orderId } }
+                            { _id: orderId }
                         ]
 
 
@@ -450,19 +450,13 @@ module.exports = {
                 },
 
             ]).toArray()
-
-            // console.log(products);
-
-            var len_arr = products.length;
-            var new_pro = new Array(len_arr);
-            var i = 0;
-
+            console.log(products[0]);
+            var productsArray = [], i = 0
             products.forEach(element => {
-                new_pro[i++] = element.products[0]
-                // console.log(element.products[0]);
+                productsArray[i++] = element.products[0]
             });
-            // console.log(new_pro);
-            resolve(new_pro)
+            console.log(productsArray);
+            resolve(productsArray)
         })
 
     },
@@ -486,16 +480,84 @@ module.exports = {
     },
 
     removeCart: (id) => {
-
-        // return new Promise((resolve, reject) => {
-
         db.get().collection(collections.CART).deleteOne({ _id: ObjectId(id) })
-        //.then((res) => {
-        //     resolve();
-        // }).catch((err)=>{
-        //     console.log(err);
-        // })
-        // })
-    }
 
+    },
+
+    generateRazorpay: async (amount, orderId) => {
+
+        amount = parseInt(amount * 100)
+        orderId = orderId.toString()
+
+        try {
+            return await new Promise((resolve, reject) => {
+                instance.orders.create({
+                    amount: parseInt(amount),
+                    currency: "INR",
+                    receipt: orderId
+                },
+                    function (err, order) {
+                        if (err) {
+                            console.error(err);
+                            reject()
+                        }
+
+                        else {
+                            RazorpayOrderId = order.id
+                            resolve(order)
+                        }
+                    });
+            });
+        } catch (err) {
+            console.error(err);
+        }
+    },
+
+    varifyPayment: async (orderDt) => {
+        return new Promise(async (resolve, reject) => {
+            const {
+                createHmac
+            } = await import('node:crypto');
+
+            let hmac = createHmac('sha256', 'g17l3MkiyWLa38e4IyHLTbPt');
+            hmac.update(RazorpayOrderId + '|' + orderDt['order_dt[razorpay_payment_id]'])
+            hmac = hmac.digest('hex')
+            if (hmac == orderDt['order_dt[razorpay_signature]']) {
+                resolve()
+            } else {
+                reject("payment varification faild")
+            }
+        })
+
+    },
+    changOrderStatus: (orderId) => {
+        return new Promise((resolve, reject) => {
+            db.get().collection(collections.ORDER)
+                .updateOne(
+                    {
+                        _id: ObjectId(orderId)
+                    },
+                    {
+                        $set: {
+                            'status': 'placed'
+                        }
+                    }
+                ).then(() => {
+                    resolve();
+                }).catch((err) => {
+                    reject()
+                })
+        })
+    },
+
+    searchProducts: (search) => {
+        return new Promise(async (resolve, reject) => {
+            console.log(search);
+            var query = { $text: { $search: search } };
+
+            var result = await db.get().collection(collections.PRODUCT_COLLECTION).find(query).toArray();
+            console.log(result);
+            resolve(result)
+        })
+    }
 }
