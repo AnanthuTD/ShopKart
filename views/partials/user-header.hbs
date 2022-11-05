@@ -6,161 +6,184 @@
     a#cart{
         padding-right: 13px!important;
     }
+    .sqwv_1{
+        display: flex;
+        width: 100%;
+        flex-direction: column;
+        position: relative;
+         
+    }
+    .sqwv_2{
+        display: flex;
+    }
+   
+    .sqwv_4{
+        display: none;
+     position: absolute;
+     width: inherit;
+    }
+ 
+    .sqwv_3{
+       
+        width: inherit;
+        border-radius: 0 0 2px 2px;
+        border-top: 1px solid #e0e0e0;
+       position: absolute;
+        background-color: #fff;
+        color: #000!important;
+        z-index: 9;
+        top: 35px;
+        box-shadow: 2px 3px 5px -1px rgb(0 0 0 / 50%);
+        overflow: hidden;
+       list-style-type: none;
+  margin: 0;
+  padding: 0;
+    }
+    
 </style>
-<header class="row nav">
-    <div class="search col-5 pe-0">
-        <a href="/">
-            <img src="/images/flipkart-logo.png" alt=""/>
-        </a>
-        <input type="text"
-               id="form1"
-               placeholder="Search"
-               onkeyup="productSearch(this.value)"/>
-        <button type="submit">
-            <i class="bi bi-search"></i>
-        </button>
-    </div>
-    <div class="col-2" id="login">
-        <a href="/login" id="login-btn">
-            <button type="button" class="p-0">
-                {{#if user }}
-                    {{user.details.first-name}}
-                {{else}}
-                    Login
-                {{/if}}
-            </button>
-        </a>
-        <div id="login-table">
-            <div class="blank_row" id="login-blank">
-                <i class="bi bi-caret-up-fill text-white mx-auto"></i>
+<div class="row">
+    <header class="nav">
+        <div class="search col-5 pe-0">
+            <a href="/">
+                <img src="/images/flipkart-logo.png" alt=""/>
+            </a>
+            <div class="sqwv_1">
+                <div class="sqwv_2">
+                    <input type="text"
+                           id="search"
+                           placeholder="Search"
+                           onkeyup="productSearch(this.value)"/>
+                    <button type="submit">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+                <div class="sqwv_4" id="searchResult"></div>
             </div>
-            {{!-- table --}}
-            <div class="table data-list">
-                {{#unless user}}
-                <div class="border-top-0 row">
-                    <a href="/login">
-                        <div class="col-6">New Customer</div>
-                        <div class="link col-6">Signup</div>
+        </div>
+        <div class="col-2" id="login">
+            <a href="/login" id="login-btn">
+                <button type="button" class="p-0">
+                    {{#if user }}
+                        {{user.details.first-name}}
+                    {{else}}
+                        Login
+                    {{/if}}
+                </button>
+            </a>
+            <div id="login-table">
+                <div class="blank_row" id="login-blank">
+                    <i class="bi bi-caret-up-fill text-white mx-auto"></i>
+                </div>
+                {{!-- table --}}
+                <div class="table data-list">
+                    {{#unless user}}
+                    <div class="border-top-0 row">
+                        <a href="/login">
+                            <div class="col-6">New Customer</div>
+                            <div class="link col-6">Signup</div>
+                        </a>
+                    </div>
+                {{/unless}}
+                <div class="row">
+                    <a href="">
+                        <div>
+                            <i class="bi bi-person-circle blue"></i>My Profile
+                        </div>
                     </a>
                 </div>
-            {{/unless}}
-            <div class="row">
-                <a href="">
-                    <div>
-                        <i class="bi bi-person-circle blue"></i>My Profile
-                    </div>
-                </a>
-            </div>
-            <div class="row">
-                <a href="/orders">
-                    <div>
-                        <i class="bi bi-archive-fill blue"></i>Orders
-                    </div>
-                </a>
-            </div>
-            <div class="row">
-                <!--last row -->
-                <a href="">
-                    <div>
-                        <i class="bi bi-suit-heart-fill blue"></i>Whistle
-                    </div>
-                </a>
-            </div>
-            {{#if user }}
+                <div class="row">
+                    <a href="/orders">
+                        <div>
+                            <i class="bi bi-archive-fill blue"></i>Orders
+                        </div>
+                    </a>
+                </div>
                 <div class="row">
                     <!--last row -->
-                    <a href="/logout">
-                        <div>Logout</div>
-                    </a>
-                </div>
-            {{/if}}
-        </div>
-    </div>
-</div>
-{{#unless no_header}}
-<div class="col-3 d-flex p-0 align-items-center">
-    <div class="me-5">
-        <a href="#" class="">Become a Seller</a>
-    </div>
-    <div class="me-5" id="more">
-        <div id="more-label" class="d-flex align-items-center my-auto">
-            <label class="text-light mb-0"
-                   style="-webkit-text-stroke: thin;
-                          cursor: pointer;">More</label>
-            <div class="down-arrow fa-xs">
-                <i class="bi bi-chevron-down"></i>
-            </div>
-            <div class="up-arrow fa-xs">
-                <i class="bi bi-chevron-up"></i>
-            </div>
-        </div>
-        <div id="more-table" class=".more-table">
-            <div class="blank_row">
-                <i class="bi bi-caret-up-fill text-white mx-auto"></i>
-            </div>
-            {{!-- table --}}
-            <div class="data-list table">
-                <div class="row data-list-row border-top-0">
-                    <a href="">
-                        <div class="col">
-                            <i class="bi bi-bell-fill blue"></i>Notification Preference
-                        </div>
-                    </a>
-                </div>
-                <div class="row data-list-row">
                     <a href="">
                         <div>
-                            <i class="bi bi-question-diamond-fill blue"></i>24x7 Custome Support
+                            <i class="bi bi-suit-heart-fill blue"></i>Whistle
                         </div>
                     </a>
                 </div>
-                <div class="row data-list-row">
-                    <a href="">
-                        <div>
-                            <i class="bi bi-graph-up-arrow blue"></i>Advertice
-                        </div>
-                    </a>
-                </div>
-                <div class="row data-list-row">
-                    <!--last row -->
-                    <a href="">
-                        <div>
-                            <i class="bi bi-download blue"></i>Download Apps
-                        </div>
-                    </a>
-                </div>
+                {{#if user }}
+                    <div class="row">
+                        <!--last row -->
+                        <a href="/logout">
+                            <div>Logout</div>
+                        </a>
+                    </div>
+                {{/if}}
             </div>
         </div>
     </div>
-    <div class="me-5">
-        <button type="button"
-                class="btn shadow-none position-relative text-white py-0"
-                id="cart"
-                onclick="loadCart()">
-            Cart
-            <span class="position-absolute top-0 start-100 translate-middle bg-danger rounded-circle"
-                  id="cart-count">
-                {{count}}
-            </span>
-        </button>
+    {{#unless no_header}}
+    <div class="col-3 d-flex p-0 align-items-center">
+        <div class="me-5">
+            <a href="#" class="">Become a Seller</a>
+        </div>
+        <div class="me-5" id="more">
+            <div id="more-label" class="d-flex align-items-center my-auto">
+                <label class="text-light mb-0"
+                       style="-webkit-text-stroke: thin;
+                              cursor: pointer;">More</label>
+                <div class="down-arrow fa-xs">
+                    <i class="bi bi-chevron-down"></i>
+                </div>
+                <div class="up-arrow fa-xs">
+                    <i class="bi bi-chevron-up"></i>
+                </div>
+            </div>
+            <div id="more-table" class=".more-table">
+                <div class="blank_row">
+                    <i class="bi bi-caret-up-fill text-white mx-auto"></i>
+                </div>
+                {{!-- table --}}
+                <div class="data-list table">
+                    <div class="row data-list-row border-top-0">
+                        <a href="">
+                            <div class="col">
+                                <i class="bi bi-bell-fill blue"></i>Notification Preference
+                            </div>
+                        </a>
+                    </div>
+                    <div class="row data-list-row">
+                        <a href="">
+                            <div>
+                                <i class="bi bi-question-diamond-fill blue"></i>24x7 Custome Support
+                            </div>
+                        </a>
+                    </div>
+                    <div class="row data-list-row">
+                        <a href="">
+                            <div>
+                                <i class="bi bi-graph-up-arrow blue"></i>Advertice
+                            </div>
+                        </a>
+                    </div>
+                    <div class="row data-list-row">
+                        <!--last row -->
+                        <a href="">
+                            <div>
+                                <i class="bi bi-download blue"></i>Download Apps
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="me-5">
+            <button type="button"
+                    class="btn shadow-none position-relative text-white py-0"
+                    id="cart"
+                    onclick="loadCart()">
+                Cart
+                <span class="position-absolute top-0 start-100 translate-middle bg-danger rounded-circle"
+                      id="cart-count">
+                    {{count}}
+                </span>
+            </button>
+        </div>
     </div>
-</div>
 {{/unless}}
 </header>
-<script>
-    function productSearch(search){
-        search = search.trim();
-       
-        $.ajax({
-        type: "post",
-        url: "/search-products",
-        data: {
-            search
-        },
-        success: function (response) {
-            console.log(response)
-        }
-    });
-        
-    }
-</script>

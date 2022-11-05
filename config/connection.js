@@ -1,7 +1,9 @@
 var MongoClient = require('mongodb').MongoClient;
 const collections = require('./collections');
+let promise = require('promise');
+const { resolve, reject } = require('promise');
 const status = {
-    db:null
+    db: null
 }
 
 module.exports.connect = function (done) {
@@ -17,15 +19,41 @@ module.exports.connect = function (done) {
         status.db = db_url.db(dbname);
         console.log("Database created!");
         // creating index for search
-        status.db.collection(collections.PRODUCT_COLLECTION).createIndex({ name: "text" })
-        
+        createIndex();
+
         return done()
 
     });
-    
+
 
 }
 
-module.exports.get = function(){
+module.exports.get = function () {
     return status.db;
+}
+
+module.exports.createIndex = ()=>{
+    createIndex();
+}
+function createIndex() {
+    return new promise((resolve, reject) =>{
+        status.db.collection(collections.PRODUCT_COLLECTION).createIndex(
+            {
+                name: "text",
+                index: "text",
+                 
+            },
+            {
+                weights: {
+                    index: 2,
+                },
+                name: "productIndex"
+            }
+            ).catch((err)=>{
+                dropIndex("productIndex") 
+                resolve()
+            })
+            resolve()
+    })
+    
 }

@@ -13,7 +13,7 @@ module.exports = {
             db.get().collection(collections.PRODUCT_COLLECTION).insertOne(product).then((data) => {
 
                 var id = (data.insertedId).toString();
-                db.get().collection(collections.PRODUCT_COLLECTION).createIndex({ name: "text" });
+                db.createIndex();
 
                 resolve(id)
             }).catch((err) => { console.log('product insertion faild' + err); })
@@ -46,7 +46,7 @@ module.exports = {
 
             db.get().collection(collections.PRODUCT_COLLECTION).deleteOne({ _id: ObjectId(proId) }).then((res) => {
                 console.log('\n.....Product deleted successfully.....\n');
-
+                db.createIndex();
                 resolve({ status: true });
             }).catch((err) => {
                 console.log('\n......Product deletion faild......\n' + err);
@@ -75,7 +75,7 @@ module.exports = {
 
             db.get().collection(collections.PRODUCT_COLLECTION).updateOne({ _id: ObjectId(id) }, { $set: product }).then((response) => {
 
-
+               
                 resolve("\nedit success\n");
             })
         })

@@ -1,0 +1,22 @@
+<style>
+    .ltr_1{
+        color: black !important;
+        -webkit-text-stroke: 0px!important;
+        display: flex;
+    }
+   
+</style>
+<ul class="sqwv_3">
+    {{#each search }}
+        <li>
+            <div class="p-3">
+                <a href="" class="ltr_1">
+                    <div style="height: 32px; width: 32px;">
+                       <i class="bi bi-search"></i>
+                    </div>
+                    <div>{{this.index}}</div>
+                </a>
+            </div>
+        </li>
+    {{/each}}
+</ul>

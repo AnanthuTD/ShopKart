@@ -556,7 +556,7 @@ module.exports = {
             var query = { $text: { $search: search } };
 
             var result = await db.get().collection(collections.PRODUCT_COLLECTION).find(query).toArray();
-            console.log(result);
+
             resolve(result)
         })
     }

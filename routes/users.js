@@ -196,7 +196,7 @@ router.post('/varify_payment', (req, res) => {
   let user = req.session.user_data;
   var userId = user.details._id
   var orderDt = req.body;
-  
+
   userHelpers.varifyPayment(orderDt).then(() => {
     userHelpers.removeCart(userId);
     userHelpers.changOrderStatus(orderDt['order[receipt]'])
@@ -208,12 +208,20 @@ router.post('/varify_payment', (req, res) => {
     res.json({ status: false })
   })
 })
-router.post('/search-products', (req, res)=>{
+router.post('/search-products', (req, res) => {
   console.log("search");
   var search = req.body.search
-  userHelpers.searchProducts(search).then((response)=>{
-    console.log(response);
-    res.json({response})
+  userHelpers.searchProducts(search).then((response) => {
+    var proDt = [], i = 0;
+    if (response != []) {
+      response.forEach(element => {
+        proDt[i++] = ({
+          name: element.name, index: element.index, id: element._id
+        })
+      }
+      );
+    }
+    res.render('users/search-products', { layout: false, search: proDt})
   })
 })
 module.exports = router;
