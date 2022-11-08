@@ -1,6 +1,8 @@
 <link rel="stylesheet" href="/stylesheets/add-products.css"/>
 <section class="container">
-    <form action="/admin/add-products" method="post" enctype="multipart/form-data">
+    <form action="/admin/add-products"
+          method="post"
+          enctype="multipart/form-data">
         <div class="form-group row">
             <label for="product-name" class="col-4 col-form-label">Name</label>
             <div class="col-8">
@@ -19,6 +21,19 @@
                            class="form-control"/>
                 </div>
                 <span id="product-nameHelpBlock" class="form-text text-muted">Product Name</span>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-4 col-form-label" for="product-category">Index</label>
+            <div class="col-8">
+                <input id="product-category"
+                       name="index"
+                       placeholder="eg : Smart phone, Tablet"
+                       type="text"
+                       aria-describedby="categoryHelpBlock"
+                       required="required"
+                       class="form-control"/>
+                <span id="categoryHelpBlock" class="form-text text-muted">used for search.</span>
             </div>
         </div>
         <div class="form-group row">
