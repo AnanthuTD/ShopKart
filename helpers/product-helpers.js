@@ -1,19 +1,20 @@
 // accessing db
-var db = require('../config/connection')
-// accessing collections
+var db = require('../config/CloudConnection')
 var collections = require('../config/collections');
+var configHelpers = require('../helpers/config-helpers')
 const { ObjectId } = require('mongodb');
+var promise = require('promise')
 
 module.exports = {
 
     addProduct: async (product) => {
 
-        return new Promise((resolve, reject) => {
+        return new promise((resolve, reject) => {
 
             db.get().collection(collections.PRODUCT_COLLECTION).insertOne(product).then((data) => {
 
                 var id = (data.insertedId).toString();
-                db.createIndex();
+                configHelpers.createIndex(db.get())
 
                 resolve(id)
             }).catch((err) => { console.log('product insertion faild' + err); })
@@ -33,7 +34,7 @@ module.exports = {
 
     getAllProducts: () => {
 
-        return new Promise(async function (resolve, reject) {
+        return new promise(async function (resolve, reject) {
 
             let products = await db.get().collection(collections.PRODUCT_COLLECTION).find().toArray();
             resolve(products);
@@ -42,11 +43,11 @@ module.exports = {
 
     deleteProduct: (proId) => {
 
-        return new Promise((resolve, reject) => {
+        return new promise((resolve, reject) => {
 
             db.get().collection(collections.PRODUCT_COLLECTION).deleteOne({ _id: ObjectId(proId) }).then((res) => {
                 console.log('\n.....Product deleted successfully.....\n');
-                db.createIndex();
+                configHelpers.createIndex(db.get())
                 resolve({ status: true });
             }).catch((err) => {
                 console.log('\n......Product deletion faild......\n' + err);
@@ -57,7 +58,7 @@ module.exports = {
 
     getProduct: (proId) => {
 
-        return new Promise(async (resolve, reject) => {
+        return new promise(async (resolve, reject) => {
 
             db.get().collection(collections.PRODUCT_COLLECTION).findOne({ _id: ObjectId(proId) }).then((res) => {
 
@@ -71,11 +72,11 @@ module.exports = {
 
     editProduct: (product, id) => {
 
-        return new Promise((resolve, reject) => {
+        return new promise((resolve, reject) => {
 
             db.get().collection(collections.PRODUCT_COLLECTION).updateOne({ _id: ObjectId(id) }, { $set: product }).then((response) => {
 
-               
+
                 resolve("\nedit success\n");
             })
         })

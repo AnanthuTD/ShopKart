@@ -3,13 +3,13 @@ var express = require('express');
 var path = require('path');
 var logger = require('morgan');
 var fileUpload = require('express-fileupload')
-var db = require('./config/connection');
-var productHelpers = require('./helpers/product-helpers');
+// var db = require('./config/connection');
+var db = require('./config/CloudConnection');
 var adminRouter = require('./routes/admin');
 var usersRouter = require('./routes/users');
-var promise = require('promise');
 var handleBars = require('handlebars')
 var helpers = require('handlebars-helpers')();
+var configHelpers = require('./helpers/config-helpers')
 
 handleBars.registerHelper("inc", (value) => {
   return parseInt(value) + 1;
@@ -39,10 +39,15 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(fileUpload());
 
+// local database
 db.connect((err) => {
   if (err) console.log('!Error connecting to database : ' + err);
-  else console.log('database created');
+  else {
+    // creating index for search
+    configHelpers.createIndex(db);
+  }
 })
+
 // session Storage
 require('./config/session')(app)
 

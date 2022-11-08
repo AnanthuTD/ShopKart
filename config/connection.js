@@ -18,11 +18,8 @@ module.exports.connect = function (done) {
         console.log("Database connected!");
         status.db = db_url.db(dbname);
         console.log("Database created!");
-        // creating index for search
-        createIndex();
-
+    
         return done()
-
     });
 
 
@@ -30,30 +27,4 @@ module.exports.connect = function (done) {
 
 module.exports.get = function () {
     return status.db;
-}
-
-module.exports.createIndex = ()=>{
-    createIndex();
-}
-function createIndex() {
-    return new promise((resolve, reject) =>{
-        status.db.collection(collections.PRODUCT_COLLECTION).createIndex(
-            {
-                name: "text",
-                index: "text",
-                 
-            },
-            {
-                weights: {
-                    index: 2,
-                },
-                name: "productIndex"
-            }
-            ).catch((err)=>{
-                dropIndex("productIndex") 
-                resolve()
-            })
-            resolve()
-    })
-    
 }

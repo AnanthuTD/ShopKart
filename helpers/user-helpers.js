@@ -1,12 +1,10 @@
-
-const db = require('../config/connection');
-const { Db, ObjectId } = require('mongodb');
+var db = require('../config/CloudConnection')
+// const db = require('../config/connection');
+const { ObjectId } = require('mongodb');
 var bcrypt = require('bcrypt');
 const collections = require('../config/collections');
-const { resolve, reject } = require('promise');
+let promise = require('promise');
 var Razorpay = require('razorpay');
-const { search } = require('../routes/users');
-const { query } = require('express');
 var instance = new Razorpay({
     key_id: 'rzp_test_qjRHUAXRk6sVu8',
     key_secret: 'g17l3MkiyWLa38e4IyHLTbPt'
@@ -26,7 +24,7 @@ module.exports = {
     doSignup: (userData) => {
 
 
-        return new Promise(async (resolve, reject) => {
+        return new promise(async (resolve, reject) => {
 
             userData.password = await bcrypt.hash(userData.password, 12);
             userData.address1 = null;
@@ -52,7 +50,7 @@ module.exports = {
     doLogin: async (userData) => {
 
         try {
-            return await new Promise(async (resolve, reject) => {
+            return await new promise(async (resolve, reject) => {
 
                 let response = {};
 
@@ -92,7 +90,7 @@ module.exports = {
 
     addProduct: async (userId, proId) => {
 
-        return await new Promise(async (resolve, reject) => {
+        return await new promise(async (resolve, reject) => {
 
             db.get().collection(collections.CART)
                 .updateOne(
@@ -159,7 +157,7 @@ module.exports = {
 
     getAllProducts: (userId) => {
 
-        return new Promise(async (resolve, reject) => {
+        return new promise(async (resolve, reject) => {
 
             var products = await db.get().collection(collections.CART).aggregate([
 
@@ -245,7 +243,7 @@ module.exports = {
 
     removeProduct: (proId, userId) => {
 
-        return new Promise((resolve, reject) => {
+        return new promise((resolve, reject) => {
 
             db.get().collection(collections.CART)
                 .updateOne(
@@ -275,7 +273,7 @@ module.exports = {
 
     cartCount: (userId) => {
 
-        return new Promise(async (resolve, reject) => {
+        return new promise(async (resolve, reject) => {
 
             var count = await db.get().collection(collections.CART).
                 aggregate([
@@ -297,7 +295,7 @@ module.exports = {
 
     decCartCount: (cartId, proId) => {
 
-        return new Promise((resolve, reject) => {
+        return new promise((resolve, reject) => {
 
             db.get().collection(collections.CART).
                 updateOne(
@@ -333,7 +331,7 @@ module.exports = {
     },
 
     placeOrder: (user_id) => {
-        return new Promise(async (resolve, reject) => {
+        return new promise(async (resolve, reject) => {
 
             var order = await db.get().collection(collections.CART).aggregate([
                 {
@@ -407,7 +405,7 @@ module.exports = {
 
     orderDetails: (user_id = null, orderId = []) => {
 
-        return new Promise(async (resolve, reject) => {
+        return new promise(async (resolve, reject) => {
 
             var products = await db.get().collection(collections.ORDER).aggregate([
                 {
@@ -462,7 +460,7 @@ module.exports = {
     },
 
     addAddress: (address) => {
-        return new Promise((resolve, reject) => {
+        return new promise((resolve, reject) => {
             db.get().collection(collections.USER_COLLECTION).updateOne(
                 {
                     _id: ObjectId(address.user_id)
@@ -490,7 +488,7 @@ module.exports = {
         orderId = orderId.toString()
 
         try {
-            return await new Promise((resolve, reject) => {
+            return await new promise((resolve, reject) => {
                 instance.orders.create({
                     amount: parseInt(amount),
                     currency: "INR",
@@ -514,7 +512,7 @@ module.exports = {
     },
 
     varifyPayment: async (orderDt) => {
-        return new Promise(async (resolve, reject) => {
+        return new promise(async (resolve, reject) => {
             const {
                 createHmac
             } = await import('node:crypto');
@@ -531,7 +529,7 @@ module.exports = {
 
     },
     changOrderStatus: (orderId) => {
-        return new Promise((resolve, reject) => {
+        return new promise((resolve, reject) => {
             db.get().collection(collections.ORDER)
                 .updateOne(
                     {
@@ -551,7 +549,7 @@ module.exports = {
     },
 
     searchProducts: (search) => {
-        return new Promise(async (resolve, reject) => {
+        return new promise(async (resolve, reject) => {
             console.log(search);
             var query = { $text: { $search: search } };
 
