@@ -1,8 +1,6 @@
 var session = require('express-session')
 var MongoStore = require('connect-mongo')
-var collections = require('../config/collections')
-var MongoClient = require('mongodb').MongoClient;
-var db = require('../config/connection')
+
 
 module.exports = async(app) => {
     

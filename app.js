@@ -9,7 +9,9 @@ var adminRouter = require('./routes/admin');
 var usersRouter = require('./routes/users');
 var handleBars = require('handlebars')
 var helpers = require('handlebars-helpers')();
-var configHelpers = require('./helpers/config-helpers')
+var configHelpers = require('./helpers/config-helpers');
+var productHelpers = require('./helpers/product-helpers');
+var userHelpers = require('./helpers/user-helpers');
 
 handleBars.registerHelper("inc", (value) => {
   return parseInt(value) + 1;
@@ -45,6 +47,7 @@ db.connect((err) => {
   else {
     // creating index for search
     configHelpers.createIndex(db);
+    productHelpers.initDB(db).then().catch(err=>{console.error(err);});
   }
 })
 
