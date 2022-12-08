@@ -1,6 +1,8 @@
 // accessing db
 var db;
+
 var collections = require('../config/collections');
+
 var configHelpers = require('../helpers/config-helpers')
 const { ObjectId } = require('mongodb');
 var promise = require('promise');
@@ -10,6 +12,7 @@ var promise = require('promise');
 module.exports = {
 
     initDB: function (DB) {
+        
         return new promise((resolve, reject) => {
             db = DB.get();
             resolve();
