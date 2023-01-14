@@ -1,17 +1,14 @@
-var addToCart = require('../public/javascripts/cart')
 var express = require('express');
 var router = express.Router();
 const productHelpers = require('../helpers/product-helpers');
 const userHelpers = require('../helpers/user-helpers');
-const { decCartCount, totalPrice } = require('../helpers/user-helpers');
-const { response } = require('express');
-const { get } = require('../config/connection');
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
 
-  req.session.history = req.originalUrl;
+  // req.session.history = req.originalUrl;
   let count = 0
+  console.log(req.session);
   let user = req.session.user_data;
   productHelpers.getAllProducts().then((products) => {
     if (user) {
@@ -25,7 +22,7 @@ router.get('/', function (req, res, next) {
   })
 });
 
-router.get('/login', function (req, res, next) {
+router.get('/login', function (req, res) {
 
   let user = req.session.user_data;
   res.render('users/login', { title: 'shop kart', user: user });

@@ -1,61 +1,78 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var logger = require('morgan');
-var fileUpload = require('express-fileupload')
+var createError = require("http-errors");
+var express = require("express");
+var path = require("path");
+var logger = require("morgan");
+var fileUpload = require("express-fileupload");
+var dotenv = require("dotenv");
+var handleBars = require("handlebars");
+var helpers = require("handlebars-helpers")();
+
 // var db = require('./config/connection');
-var db = require('./config/CloudConnection');
-var adminRouter = require('./routes/admin');
-var usersRouter = require('./routes/users');
-var handleBars = require('handlebars')
-var helpers = require('handlebars-helpers')();
-var configHelpers = require('./helpers/config-helpers');
-var productHelpers = require('./helpers/product-helpers');
-var userHelpers = require('./helpers/user-helpers');
+var db = require("./config/CloudConnection");
+var adminRouter = require("./routes/admin");
+var usersRouter = require("./routes/users");
+var configHelpers = require("./helpers/config-helpers");
+var productHelpers = require("./helpers/product-helpers");
 
 handleBars.registerHelper("inc", (value) => {
   return parseInt(value) + 1;
-})
+});
 
 const app = express();
 
+// creditials to mongodb atlas
+const result = dotenv.config();
+let uri = "";
+if (result.error) {
+  throw result.error;
+} else {
+  uri = process.env.DB_URI;
+  connect();
+}
+
+async function connect() {
+  // session Storage
+  require("./config/session")(uri, app);
+  db.connect(uri, (err) => {
+    if (err) console.log("!Error connecting to database : " + err);
+    else {
+      // creating index for search
+      configHelpers.createIndex(db);
+      productHelpers
+        .initDB(db)
+        .then()
+        .catch((err) => {
+          console.error(err);
+        });
+    }
+  });
+}
+
 // view engine setup
-var hbs = require('express-handlebars');
-const { resolve } = require('path');
-const { Cookie } = require('express-session');
+var hbs = require("express-handlebars");
 
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'hbs');
-app.engine('hbs', hbs.engine({
-  extname: 'hbs',
-  defaultLayout: 'layout',
-  layoutsDir: __dirname + '/views/layouts/',
-  partialsDir: __dirname + '/views/partials',
-  userDir: __dirname + '/views/partials',
-}))
+app.set("views", path.join(__dirname, "views"));
+app.set("view engine", "hbs");
+app.engine(
+  "hbs",
+  hbs.engine({
+    extname: "hbs",
+    defaultLayout: "layout",
+    layoutsDir: __dirname + "/views/layouts/",
+    partialsDir: __dirname + "/views/partials",
+    userDir: __dirname + "/views/partials",
+  })
+);
 
-app.use(logger('dev'));
+app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 //app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, "public")));
 app.use(fileUpload());
 
-// local database
-db.connect((err) => {
-  if (err) console.log('!Error connecting to database : ' + err);
-  else {
-    // creating index for search
-    configHelpers.createIndex(db);
-    productHelpers.initDB(db).then().catch(err=>{console.error(err);});
-  }
-})
-
-// session Storage
-require('./config/session')(app)
-
-app.use('/admin', adminRouter);
-app.use('/', usersRouter);
+app.use("/admin", adminRouter);
+app.use("/", usersRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -66,11 +83,11 @@ app.use(function (req, res, next) {
 app.use(function (err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
+  res.locals.error = req.app.get("env") === "development" ? err : {};
 
   // render the error page
   res.status(err.status || 500);
-  res.render('error');
+  res.render("error");
 });
 
 module.exports = app;
