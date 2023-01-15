@@ -527,7 +527,7 @@ module.exports = {
     changOrderStatus: async (orderId) => {
         var incDate = randomInt(10)
         return new promise(async (resolve, reject) => {
-            var result = await db.get().collection(collections.ORDER).aggregate(
+            await db.get().collection(collections.ORDER).aggregate(
                 [
                     {
                         $match:
@@ -554,7 +554,6 @@ module.exports = {
                     }
                 ]
             ).toArray()
-            console.log(result);
             resolve()
         })
 
