@@ -5,6 +5,7 @@ var bcrypt = require('bcrypt');
 const collections = require('../config/collections');
 let promise = require('promise');
 var Razorpay = require('razorpay');
+const { randomInt } = require('node:crypto');
 var instance = new Razorpay({
     key_id: 'rzp_test_qjRHUAXRk6sVu8',
     key_secret: 'g17l3MkiyWLa38e4IyHLTbPt'
@@ -331,6 +332,7 @@ module.exports = {
     },
 
     placeOrder: (user_id) => {
+
         return new promise(async (resolve, reject) => {
 
             var order = await db.get().collection(collections.CART).aggregate([
@@ -363,16 +365,15 @@ module.exports = {
                         "address.address1": 1,
                         _id: 0,
                         proId: 1,
-
                     }
                 },
                 {
                     $unwind:
                         "$address"
-
                 },
-                { $addFields: { userId: ObjectId(user_id), "Order_date": "$$NOW", 'status': 'pending' } },
-
+                {
+                    $addFields: { userId: ObjectId(user_id), "Order_date": "$$NOW", 'status': 'pending' }
+                },
             ]).toArray();
 
             var i = 0
@@ -386,7 +387,7 @@ module.exports = {
             await db.get().collection(collections.ORDER).insertOne(order).catch((err) => {
                 console.error(err);
             }).then((res) => {
-                
+
                 orderId = (res.insertedId)
             })
 
@@ -516,30 +517,36 @@ module.exports = {
             hmac.update(RazorpayOrderId + '|' + orderDt['order_dt[razorpay_payment_id]'])
             hmac = hmac.digest('hex')
             if (hmac == orderDt['order_dt[razorpay_signature]']) {
-               
+
                 resolve()
             } else {
                 reject("payment varification faild")
             }
         })
     },
-    changOrderStatus: (orderId) => {
-        return new promise((resolve, reject) => {
+    changOrderStatus: async (orderId) => {
+        var incDate = randomInt(10)
+        return new promise(async (resolve, reject) => {
             db.get().collection(collections.ORDER)
                 .updateOne(
                     {
                         _id: ObjectId(orderId)
                     },
-                    {
-                        $set: {
-                            'status': 'placed'
-                        }
-                    }
-                ).then(() => {
+                    { $set: { "DeliveryDate" : { $dateAdd: {
+                        startDate: '$Order_date',
+                        unit: "day",
+                        amount: 5,
+                       
+                     } } } }
+
+                ).then((res) => {
+                    console.log(res);
                     resolve();
                 }).catch((err) => {
+                    console.log(err);
                     reject()
                 })
+
         })
     },
     searchProducts: (search) => {
