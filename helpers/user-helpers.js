@@ -527,27 +527,37 @@ module.exports = {
     changOrderStatus: async (orderId) => {
         var incDate = randomInt(10)
         return new promise(async (resolve, reject) => {
-            db.get().collection(collections.ORDER)
-                .updateOne(
+            var result = await db.get().collection(collections.ORDER).aggregate(
+                [
                     {
-                        _id: ObjectId(orderId)
+                        $match:
+                            { _id: ObjectId(orderId) }
                     },
-                    { $set: { "DeliveryDate" : { $dateAdd: {
-                        startDate: '$Order_date',
-                        unit: "day",
-                        amount: 5,
-                       
-                     } } } }
+                    {
+                        $project:
+                        {
+                            DeliveryDate:
+                            {
+                                $dateAdd:
+                                {
+                                    startDate: "$Order_date",
+                                    unit: "day",
+                                    amount: incDate
+                                }
+                            },
+                            status: 'placed'
+                        }
+                    },
 
-                ).then((res) => {
-                    console.log(res);
-                    resolve();
-                }).catch((err) => {
-                    console.log(err);
-                    reject()
-                })
-
+                    {
+                        $merge: { into: collections.ORDER, on: "_id"}
+                    }
+                ]
+            ).toArray()
+            console.log(result);
+            resolve()
         })
+
     },
     searchProducts: (search) => {
         return new promise(async (resolve, reject) => {
