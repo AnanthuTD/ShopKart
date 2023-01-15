@@ -43,7 +43,6 @@ module.exports = {
     getAllProducts: () => {
 
         return new promise(async function (resolve, reject) {
-
             let products = await db.collection(collections.PRODUCT_COLLECTION).find().toArray();
             resolve(products);
         });

@@ -386,7 +386,7 @@ module.exports = {
             await db.get().collection(collections.ORDER).insertOne(order).catch((err) => {
                 console.error(err);
             }).then((res) => {
-                console.log(res);
+                
                 orderId = (res.insertedId)
             })
 
@@ -403,7 +403,7 @@ module.exports = {
         })
     },
 
-    orderDetails: (user_id = null, orderId = []) => {
+    orderDetails: (user_id = null, orderId = null) => {
 
         return new promise(async (resolve, reject) => {
 
@@ -412,10 +412,8 @@ module.exports = {
                     $match: {
                         $or: [
                             { "userId": ObjectId(user_id) },
-                            { _id: orderId }
+                            { _id: ObjectId(orderId) }
                         ]
-
-
                     }
                 },
                 {
@@ -431,7 +429,6 @@ module.exports = {
                         _id: 0
                     }
                 },
-
                 {
                     $lookup:
                     {
@@ -448,12 +445,10 @@ module.exports = {
                 },
 
             ]).toArray()
-            console.log(products[0]);
             var productsArray = [], i = 0
             products.forEach(element => {
                 productsArray[i++] = element.products[0]
             });
-            console.log(productsArray);
             resolve(productsArray)
         })
 
@@ -521,12 +516,12 @@ module.exports = {
             hmac.update(RazorpayOrderId + '|' + orderDt['order_dt[razorpay_payment_id]'])
             hmac = hmac.digest('hex')
             if (hmac == orderDt['order_dt[razorpay_signature]']) {
+               
                 resolve()
             } else {
                 reject("payment varification faild")
             }
         })
-
     },
     changOrderStatus: (orderId) => {
         return new promise((resolve, reject) => {
@@ -547,14 +542,10 @@ module.exports = {
                 })
         })
     },
-
     searchProducts: (search) => {
         return new promise(async (resolve, reject) => {
-            console.log(search);
             var query = { $text: { $search: search } };
-
             var result = await db.get().collection(collections.PRODUCT_COLLECTION).find(query).toArray();
-
             resolve(result)
         })
     }
