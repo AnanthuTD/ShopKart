@@ -11,6 +11,7 @@ var instance = new Razorpay({
     key_secret: 'g17l3MkiyWLa38e4IyHLTbPt'
 })
 let RazorpayOrderId = ''
+let orderedProducts = []
 
 module.exports = {
     varify: (req) => {
@@ -374,6 +375,7 @@ module.exports = {
                 },
                 {
                     $project: {
+                        DeliveryDate: '$DeliveryDate',
                         proId: {
                             $map: {
                                 input: '$proId',
@@ -400,8 +402,23 @@ module.exports = {
                     }
                 },
             ]).toArray()
-            products = products[0].products
-            resolve(products)
+            // console.log("products = ", products);
+            orderedProducts = await products.map(async (element) => {
+                var array = await element.products.map(async product => {
+                    var trimedproduct = {
+                        _id: product._id.toString(),
+                        name: product.name,
+                        price: product.price,
+                        img: product.img,
+                        DeliveryDate: element.DeliveryDate
+                    }
+                    return trimedproduct
+                })
+                console.log(array);
+                return array
+            })
+            console.log("orderedProducts = ", orderedProducts[0]);
+            resolve(orderedProducts)
         })
     },
 
@@ -506,6 +523,15 @@ module.exports = {
             var query = { $text: { $search: search } };
             var result = await db.get().collection(collections.PRODUCT_COLLECTION).find(query).toArray();
             resolve(result)
+        })
+    },
+
+    searchOrders: (search) => {
+        return new promise(async (resolve, reject) => {
+            var results = orderedProducts.map(product => {
+                product.name.match(search) ? product : null
+            })
+            console.log(results);
         })
     }
 }
