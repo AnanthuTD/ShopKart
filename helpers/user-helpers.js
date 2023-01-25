@@ -336,7 +336,6 @@ module.exports = {
                 quantity[i++] = element.quantity
             });
             var orderId = ''
-            console.log(order);
             await db.get().collection(collections.ORDER).insertOne(order).catch((err) => {
                 console.error(err);
             }).then((res) => {
