@@ -1,18 +1,20 @@
-var db = require('../config/CloudConnection')
-// const db = require('../config/connection');
+// var db = require('../config/CloudConnection')
+const db = require('../config/connection');
 const { ObjectId } = require('mongodb');
 var bcrypt = require('bcrypt');
 const collections = require('../config/collections');
 let promise = require('promise');
 var Razorpay = require('razorpay');
+const { randomInt } = require('node:crypto');
+const e = require('express');
 var instance = new Razorpay({
     key_id: 'rzp_test_qjRHUAXRk6sVu8',
     key_secret: 'g17l3MkiyWLa38e4IyHLTbPt'
 })
 let RazorpayOrderId = ''
+let orderedProducts = []
 
 module.exports = {
-
     varify: (req) => {
         user = req.session.user_data
         if (user) {
@@ -22,13 +24,10 @@ module.exports = {
     },
 
     doSignup: (userData) => {
-
-
         return new promise(async (resolve, reject) => {
-
             userData.password = await bcrypt.hash(userData.password, 12);
             userData.address1 = null;
-
+            console.log(userData);
             if (await db.get().collection(collections.USER_COLLECTION).findOne({ email: userData.email })) {
                 resolve({ status: false })
             }
@@ -47,51 +46,32 @@ module.exports = {
         })
     },
 
-    doLogin: async (userData) => {
-
-        try {
-            return await new promise(async (resolve, reject) => {
-
-                let response = {};
-
-
-                var user = await db.get().collection(collections.USER_COLLECTION).findOne({ email: userData.email });
-
-                if (user) {
-
-                    bcrypt.compare(userData.password, user.password).then((flag) => {
-
-                        if (flag) {
-
-                            console.log('login success');
-                            response.status = true;
-                            response.details = user;
-                            resolve(response);
-                        }
-                        else {
-
-                            console.log('login faild');
-                            response.status = false;
-
-                            resolve(response);
-                        }
-
-                    }).catch((err) => {
-                        console.log("Login faild ! ");
-                        throw err;
-                    });
-                }
-            });
-        } catch (err_1) {
-            resolve({ status: false });
-            throw err_1;
-        }
+    doLogin: (userData) => {
+        return new promise((resolve, reject) => {
+            let response = {};
+            db.get().collection(collections.USER_COLLECTION).findOne({ email: userData.email }).then((user) => {
+                if (!user)
+                    return reject(response);
+                bcrypt.compare(userData.password, user.password).then((flag) => {
+                    if (flag) {
+                        console.log('login success');
+                        response.status = true;
+                        response.details = user;
+                        resolve(response);
+                    }
+                    else {
+                        return reject(response);
+                    }
+                })
+            }).catch((err) => {
+                console.log("Login faild ! ");
+                throw err;
+            })
+        })
     },
 
     addProduct: async (userId, proId) => {
-
         return await new promise(async (resolve, reject) => {
-
             db.get().collection(collections.CART)
                 .updateOne(
                     {
@@ -119,12 +99,9 @@ module.exports = {
                         upsert: true
                     }
                 ).then((res) => {
-
                     console.log('\n Product Successfully added to cart \n');
                     resolve({ status: true });
-
                 }).catch((err) => {
-
                     if (err.name == 'MongoServerError' && err.code === 11000) {
                         console.log("\n Item already exist in the cart \n");
                         db.get().collection(collections.CART)
@@ -148,17 +125,12 @@ module.exports = {
                     else {
                         throw new Error(err);
                     }
-
                 })
-
         });
-
     },
 
     getAllProducts: (userId) => {
-
         return new promise(async (resolve, reject) => {
-
             var products = await db.get().collection(collections.CART).aggregate([
 
                 {
@@ -180,7 +152,6 @@ module.exports = {
                     }
                     // gives id products in cart as 'products'(array)
                 },
-
                 // for fetching the product details
                 {
                     $lookup:
@@ -201,13 +172,9 @@ module.exports = {
                     }
                 }
             ]).toArray()
-
             if (products.length != 0) {
-
                 products = products[0].products;
-
                 var cart = await db.get().collection(collections.CART).aggregate([
-
                     {
                         $match: {
                             _id: ObjectId(userId)
@@ -242,9 +209,7 @@ module.exports = {
     },
 
     removeProduct: (proId, userId) => {
-
         return new promise((resolve, reject) => {
-
             db.get().collection(collections.CART)
                 .updateOne(
                     {
@@ -272,9 +237,7 @@ module.exports = {
     },
 
     cartCount: (userId) => {
-
         return new promise(async (resolve, reject) => {
-
             var count = await db.get().collection(collections.CART).
                 aggregate([
                     {
@@ -294,9 +257,7 @@ module.exports = {
     },
 
     decCartCount: (cartId, proId) => {
-
         return new promise((resolve, reject) => {
-
             db.get().collection(collections.CART).
                 updateOne(
                     {
@@ -314,25 +275,20 @@ module.exports = {
                     console.log(err);
                 })
         })
-
     },
 
     totalPrice: (products) => {
-
-
         var totalPrice = 0;
         products.forEach(async element => {
             price = parseInt(element.price)
             count = parseInt(element.count)
             totalPrice += price * count;
         })
-
         return totalPrice;
     },
 
     placeOrder: (user_id) => {
         return new promise(async (resolve, reject) => {
-
             var order = await db.get().collection(collections.CART).aggregate([
                 {
                     $match: {
@@ -355,41 +311,37 @@ module.exports = {
                         from: collections.USER_COLLECTION,
                         foreignField: "_id",
                         localField: "_id",
-                        as: "address"
+                        as: "userDt"
                     }
                 },
                 {
                     $project: {
-                        "address.address1": 1,
+                        "address": '$userDt.address1',
                         _id: 0,
                         proId: 1,
-
                     }
                 },
                 {
                     $unwind:
                         "$address"
-
                 },
-                { $addFields: { userId: ObjectId(user_id), "Order_date": "$$NOW", 'status': 'pending' } },
-
+                {
+                    $addFields: { userId: ObjectId(user_id), "Order_date": "$$NOW", 'status': 'pending', 'DeliveryDate': null }
+                },
             ]).toArray();
-
             var i = 0
             var quantity = [0]
             order = order[0]
             order.proId.forEach(element => {
                 quantity[i++] = element.quantity
             });
-
             var orderId = ''
+            console.log(order);
             await db.get().collection(collections.ORDER).insertOne(order).catch((err) => {
                 console.error(err);
             }).then((res) => {
-                console.log(res);
                 orderId = (res.insertedId)
             })
-
             if (order) {
                 var response = {
                     status: true,
@@ -403,23 +355,20 @@ module.exports = {
         })
     },
 
-    orderDetails: (user_id = null, orderId = []) => {
-
+    orderDetails: (user_id = null, orderId = null) => {
         return new promise(async (resolve, reject) => {
-
             var products = await db.get().collection(collections.ORDER).aggregate([
                 {
                     $match: {
                         $or: [
                             { "userId": ObjectId(user_id) },
-                            { _id: orderId }
+                            { _id: ObjectId(orderId) }
                         ]
-
-
                     }
                 },
                 {
                     $project: {
+                        DeliveryDate: '$DeliveryDate',
                         proId: {
                             $map: {
                                 input: '$proId',
@@ -427,11 +376,16 @@ module.exports = {
                                 in: '$$proDetails.proId'
                             },
                         },
-
+                        quantity: {
+                            $map: {
+                                input: '$proId',
+                                as: 'proDetails',
+                                in: '$$proDetails.quantity'
+                            },
+                        },
                         _id: 0
                     }
                 },
-
                 {
                     $lookup:
                     {
@@ -446,17 +400,28 @@ module.exports = {
                         "proId": 0
                     }
                 },
-
             ]).toArray()
-            console.log(products[0]);
-            var productsArray = [], i = 0
-            products.forEach(element => {
-                productsArray[i++] = element.products[0]
-            });
-            console.log(productsArray);
-            resolve(productsArray)
-        })
 
+            if (products) {
+                var count = 0
+                orderedProducts = products.flatMap((element) => {
+                    var array = element.products.flatMap(product => {
+                        var date = element.DeliveryDate ? (element.DeliveryDate).toDateString() : null
+                        var trimedproduct = {
+                            '_id': product._id.toString(),
+                            'name': product.name,
+                            'quantity': element.quantity[count++],
+                            'price': product.price,
+                            'img': product.img,
+                            'DeliveryDate': date
+                        }
+                        return trimedproduct
+                    })
+                    return array
+                })
+            }
+            resolve(orderedProducts)
+        })
     },
 
     addAddress: (address) => {
@@ -479,14 +444,11 @@ module.exports = {
 
     removeCart: (id) => {
         db.get().collection(collections.CART).deleteOne({ _id: ObjectId(id) })
-
     },
 
     generateRazorpay: async (amount, orderId) => {
-
         amount = parseInt(amount * 100)
         orderId = orderId.toString()
-
         try {
             return await new promise((resolve, reject) => {
                 instance.orders.create({
@@ -499,7 +461,6 @@ module.exports = {
                             console.error(err);
                             reject()
                         }
-
                         else {
                             RazorpayOrderId = order.id
                             resolve(order)
@@ -516,7 +477,6 @@ module.exports = {
             const {
                 createHmac
             } = await import('node:crypto');
-
             let hmac = createHmac('sha256', 'g17l3MkiyWLa38e4IyHLTbPt');
             hmac.update(RazorpayOrderId + '|' + orderDt['order_dt[razorpay_payment_id]'])
             hmac = hmac.digest('hex')
@@ -526,36 +486,107 @@ module.exports = {
                 reject("payment varification faild")
             }
         })
-
     },
-    changOrderStatus: (orderId) => {
-        return new promise((resolve, reject) => {
-            db.get().collection(collections.ORDER)
-                .updateOne(
+
+    changOrderStatus: async (orderId) => {
+        var incDate = randomInt(10)
+        return new promise(async (resolve, reject) => {
+            await db.get().collection(collections.ORDER).aggregate(
+                [
                     {
-                        _id: ObjectId(orderId)
+                        $match:
+                            { _id: ObjectId(orderId) }
                     },
                     {
-                        $set: {
-                            'status': 'placed'
+                        $project:
+                        {
+                            DeliveryDate:
+                            {
+                                $dateAdd:
+                                {
+                                    startDate: "$Order_date",
+                                    unit: "day",
+                                    amount: incDate
+                                }
+                            },
+                            status: 'placed'
                         }
+                    },
+                    {
+                        $merge: { into: collections.ORDER, on: "_id" }
                     }
-                ).then(() => {
-                    resolve();
-                }).catch((err) => {
-                    reject()
-                })
+                ]
+            ).toArray()
+            resolve()
+        })
+    },
+    searchProducts: (search) => {
+        return new promise(async (resolve, reject) => {
+            var query = { $text: { $search: search } };
+            var result = await db.get().collection(collections.PRODUCT_COLLECTION).find(query).toArray();
+            resolve(result)
         })
     },
 
-    searchProducts: (search) => {
+    searchOrders: (search) => {
         return new promise(async (resolve, reject) => {
-            console.log(search);
-            var query = { $text: { $search: search } };
-
-            var result = await db.get().collection(collections.PRODUCT_COLLECTION).find(query).toArray();
-
-            resolve(result)
+            var results = orderedProducts.map(product => {
+                product.name.match(search) ? product : null
+            })
+            console.log(results);
         })
+    },
+
+    generateInvoice: (orderId, products) => {
+        var modProducts = products.map((product) => {
+            return ({
+                "quantity": product.quantity,
+                "description": product.name,
+                "price": product.price
+            })
+        })
+        var easyinvoice = require('easyinvoice');
+        var fs = require('fs');
+        db.get().collection(collections.ORDER).findOne({ '_id': ObjectId(orderId) }, { projection: { 'userId': 0 } }).then((res) => {
+            var address = res.address
+            var data = {
+                "client": {
+                    "company": address.name,
+                    "address": address.addressLine1,
+                    "zip": address.pincode,
+                    "city": address.city,
+                    "country": address.state
+                },
+                "sender": {
+                    "company": "Sample Corp",
+                    "address": "Sample Street 123",
+                    "zip": "1234 AB",
+                    "city": "Sampletown",
+                    "country": "Samplecountry"
+                },
+                "images": {
+                    logo: fs.readFileSync('./helpers/invoiceLogo.png', 'base64'),
+                },
+                "information": {
+                    // Invoice number
+                    "number": res._id,
+                    // Invoice data
+                    "date": res.Order_date,
+                    // Invoice due date
+                },
+
+                "products": modProducts,
+                "bottomNotice": "Kindly pay your invoice within 15 days.",
+                "settings": {
+                    "currency": "INR",
+                },
+
+            };
+            easyinvoice.createInvoice(data, function (result) {
+                fs.writeFileSync("invoice.pdf", result.pdf, 'base64');
+            });
+        })
+
+        return
     }
 }

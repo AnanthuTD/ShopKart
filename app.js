@@ -3,11 +3,13 @@ var express = require("express");
 var path = require("path");
 var logger = require("morgan");
 var fileUpload = require("express-fileupload");
-// var db = require('./config/connection');
-var db = require("./config/CloudConnection");
+var dotenv = require("dotenv");
+var handleBars = require("handlebars");
+var helpers = require("handlebars-helpers")();
+var db = require('./config/connection');
+// var db = require("./config/CloudConnection");
 var adminRouter = require("./routes/admin");
 var usersRouter = require("./routes/users");
-var handleBars = require("handlebars");
 var configHelpers = require("./helpers/config-helpers");
 var productHelpers = require("./helpers/product-helpers");
 
@@ -16,6 +18,42 @@ handleBars.registerHelper("inc", (value) => {
 });
 
 const app = express();
+
+// creditials to mongodb atlas
+const result = dotenv.config();
+let uri = "";
+if (result.error) {
+  throw result.error;
+} else {
+  uri = process.env.DB_URI;
+  connect();
+}
+
+let dbCount = 0
+async function connect() {
+  // session Storage
+  require("./config/session")(uri, app);
+  db.connect(uri, (err) => {
+    if (err) { 
+      console.log("!Error connecting to database : " + err); 
+      console.log("Re-connecting ...");
+      if (dbCount <= 2) {
+        dbCount++
+        connect() 
+      } 
+    }
+    else {
+      // creating index for search
+      configHelpers.createIndex(db);
+      productHelpers
+        .initDB(db)
+        .then()
+        .catch((err) => {
+          console.error(err);
+        });
+    }
+  });
+}
 
 // view engine setup
 var hbs = require("express-handlebars");
@@ -40,12 +78,6 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
 app.use(fileUpload());
 
-// local database
-
-
-// session Storage
-require("./config/session")(app);
-
 app.use("/admin", adminRouter);
 app.use("/", usersRouter);
 
@@ -65,9 +97,9 @@ app.use(function (err, req, res, next) {
   res.render("error");
 });
 
-// creditials to mongodb atlas
-var dotenv = require("dotenv");
-const result = dotenv.config();
+// // creditials to mongodb atlas
+// var dotenv = require("dotenv");
+// const result = dotenv.config();
 
 if (result.error) {
   throw result.error;

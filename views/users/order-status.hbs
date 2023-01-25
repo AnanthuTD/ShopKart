@@ -1,70 +1,77 @@
-<link href="https://fonts.googleapis.com/css?family=Nunito+Sans:400,400i,700,900&display=swap"
-      rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css?family=Nunito+Sans:400,400i,700,900&display=swap" rel="stylesheet" />
 <style>
-
-     .body-o {
+    .body-o {
         text-align: center;
         padding: 40px 0;
         background: #EBF0F5;
-      }
-        .h1-o {
-          color: #88B04B;
-          font-family: "Nunito Sans", "Helvetica Neue", sans-serif;
-          font-weight: 900;
-          font-size: 40px;
-          margin-bottom: 10px;
-        }
-        .p-o {
-          color: #404F5E;
-          font-family: "Nunito Sans", "Helvetica Neue", sans-serif;
-          font-size:20px;
-          margin: 0;
-        }
-      .i-o {
+    }
+
+    .h1-o {
+        color: #88B04B;
+        font-family: "Nunito Sans", "Helvetica Neue", sans-serif;
+        font-weight: 900;
+        font-size: 40px;
+        margin-bottom: 10px;
+    }
+
+    .p-o {
+        color: #404F5E;
+        font-family: "Nunito Sans", "Helvetica Neue", sans-serif;
+        font-size: 20px;
+        margin: 0;
+    }
+
+    .i-o {
         color: #9ABC66;
         font-size: 100px;
         line-height: 200px;
-        margin-left:-15px;
-      }
-      .card-1 {
+        margin-left: -15px;
+    }
+
+    .card-1 {
         background: white;
         padding: 60px;
         border-radius: 4px;
         box-shadow: 0 2px 3px #C8D0D8;
         display: inline-block;
         margin: 0 auto;
-      }
+    }
 </style>
 <div class="body-o row">
-  <div class="card-1">
-    <div style="border-radius:200px;
+    <div class="card-1 col-6">
+        <div style="border-radius:200px;
                 height:200px;
                 width:200px;
                 background: #F8FAF5;
                 margin:0 auto;">
-      <i class="checkmark i-o">✓</i>
-    </div>
-    <h1 class="h1-o">Success</h1>
-    <p class="p-o">
-      We received your purchase request;
-      <br/>
-      we'll be in touch shortly!
-    </p>
-  </div>
-</div>
-{{!-- products --}}
-<section class="d-flex flex-column align-items-center">
-  {{#each products }}
-    <div class="col-md-3 col-sm-4 m-3">
-      <div class="card h-100">
-        <img class="card-img-top img-fluid"
-             src="/products/{{this.img}}"
-             alt="Card image cap"/>
-        <div class="card-body">
-          <h5 class="card-title">{{this.name}}</h5>
-          <h6 class="card-text">{{this.price}}</h6>
+            <i class="checkmark i-o">✓</i>
         </div>
-      </div>
+        <h1 class="h1-o">Success</h1>
+        <p class="p-o">
+            We received your purchase request;
+            <br />
+            we'll be in touch shortly!
+        </p>
     </div>
-  {{/each}}
-</section>
+    <div class="col-6">
+        <div class="row">
+            {{#each products }}
+            <div class="col-xxl-3 col-xl-4 col-md-6 p-2">
+                <div class="d-flex justify-content-center flex-column shadow rounded p-1">
+                    <div class="d-flex justify-content-center">
+                        <img src="/products/{{this.img}}" alt="Card image cap"
+                            style="height: 10rem; max-width: 100%;" />
+                    </div>
+                    <div class="d-flex justify-content-center flex-column">
+                        <div style="max-width: fit-content;" class="">
+                            <h5 class="text-truncate" style="max-width: fit-content;">{{this.model}}</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {{/each}}
+        </div>
+
+    </div>
+
+</div>

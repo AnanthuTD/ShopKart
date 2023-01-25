@@ -773,7 +773,7 @@ a, img {
                 </div>
                 <div>
                     {{#each products }}
-                        <div class="asd">
+                        <div class="asd" id="{{this._id}}">
                             <a href="">
                                 <div class="row">
                                     <div class="col-2">
@@ -791,7 +791,7 @@ a, img {
                                         <div>
                                             <div class="_3SbeKb _2cm2Hi">
                                             </div>
-                                            <span class="AO0UbU">Delivered on Sep 29</span>
+                                            <span class="AO0UbU">Delivered on {{this.DeliveryDate}}</span>
                                             <div class="_30gI7w">
                                                 Your item has been delivered
                                             </div>

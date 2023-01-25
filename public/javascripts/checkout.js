@@ -10,7 +10,7 @@ $(document).ready(function () {
                 $('#checkout').html(response)
             }
         });
-    })
+    }) 
 
 
 });
@@ -65,7 +65,8 @@ function varifyPayment(order_dt, order) {
             order
         },
         success: function (response) {
-
+            console.log(response);
+            $('#checkout').html(response)
         }
     });
 }
