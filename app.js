@@ -97,32 +97,4 @@ app.use(function (err, req, res, next) {
   res.render("error");
 });
 
-// // creditials to mongodb atlas
-// var dotenv = require("dotenv");
-// const result = dotenv.config();
-
-if (result.error) {
-  throw result.error;
-} else {
-  connect();
-}
-
-async function connect() {
-  console.log("hi");
-  const uri = process.env.DB_URI;
-  db.connect(uri, (err) => {
-    if (err) console.log("!Error connecting to database : " + err);
-    else {
-      // creating index for search
-      configHelpers.createIndex(db);
-      productHelpers
-        .initDB(db)
-        .then()
-        .catch((err) => {
-          console.error(err);
-        });
-    }
-  });
-}
-
 module.exports = app;
