@@ -10,7 +10,7 @@ $(document).ready(function () {
                 $('#checkout').html(response)
             }
         });
-    })
+    }) 
 
 
 });

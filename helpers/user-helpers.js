@@ -1,11 +1,12 @@
-var db = require('../config/CloudConnection')
-// const db = require('../config/connection');
+// var db = require('../config/CloudConnection')
+const db = require('../config/connection');
 const { ObjectId } = require('mongodb');
 var bcrypt = require('bcrypt');
 const collections = require('../config/collections');
 let promise = require('promise');
 var Razorpay = require('razorpay');
 const { randomInt } = require('node:crypto');
+const e = require('express');
 var instance = new Razorpay({
     key_id: 'rzp_test_qjRHUAXRk6sVu8',
     key_secret: 'g17l3MkiyWLa38e4IyHLTbPt'
@@ -26,7 +27,7 @@ module.exports = {
         return new promise(async (resolve, reject) => {
             userData.password = await bcrypt.hash(userData.password, 12);
             userData.address1 = null;
-
+            console.log(userData);
             if (await db.get().collection(collections.USER_COLLECTION).findOne({ email: userData.email })) {
                 resolve({ status: false })
             }
@@ -45,37 +46,28 @@ module.exports = {
         })
     },
 
-    doLogin: async (userData) => {
-        try {
-            return await new promise(async (resolve, reject) => {
-                let response = {};
-                var user = await db.get().collection(collections.USER_COLLECTION).findOne({ email: userData.email });
-                if (user) {
-                    bcrypt.compare(userData.password, user.password).then((flag) => {
-                        if (flag) {
-                            console.log('login success');
-                            response.status = true;
-                            response.details = user;
-                            resolve(response);
-                        }
-                        else {
-
-                            console.log('login faild');
-                            response.status = false;
-
-                            resolve(response);
-                        }
-
-                    }).catch((err) => {
-                        console.log("Login faild ! ");
-                        throw err;
-                    });
-                }
-            });
-        } catch (err_1) {
-            resolve({ status: false });
-            throw err_1;
-        }
+    doLogin: (userData) => {
+        return new promise((resolve, reject) => {
+            let response = {};
+            db.get().collection(collections.USER_COLLECTION).findOne({ email: userData.email }).then((user) => {
+                if (!user)
+                    return reject(response);
+                bcrypt.compare(userData.password, user.password).then((flag) => {
+                    if (flag) {
+                        console.log('login success');
+                        response.status = true;
+                        response.details = user;
+                        resolve(response);
+                    }
+                    else {
+                        return reject(response);
+                    }
+                })
+            }).catch((err) => {
+                console.log("Login faild ! ");
+                throw err;
+            })
+        })
     },
 
     addProduct: async (userId, proId) => {
@@ -319,12 +311,12 @@ module.exports = {
                         from: collections.USER_COLLECTION,
                         foreignField: "_id",
                         localField: "_id",
-                        as: "address"
+                        as: "userDt"
                     }
                 },
                 {
                     $project: {
-                        "address.address1": 1,
+                        "address": '$userDt.address1',
                         _id: 0,
                         proId: 1,
                     }
@@ -334,7 +326,7 @@ module.exports = {
                         "$address"
                 },
                 {
-                    $addFields: { userId: ObjectId(user_id), "Order_date": "$$NOW", 'status': 'pending' }
+                    $addFields: { userId: ObjectId(user_id), "Order_date": "$$NOW", 'status': 'pending', 'DeliveryDate': null }
                 },
             ]).toArray();
             var i = 0
@@ -344,6 +336,7 @@ module.exports = {
                 quantity[i++] = element.quantity
             });
             var orderId = ''
+            console.log(order);
             await db.get().collection(collections.ORDER).insertOne(order).catch((err) => {
                 console.error(err);
             }).then((res) => {
@@ -383,7 +376,13 @@ module.exports = {
                                 in: '$$proDetails.proId'
                             },
                         },
-
+                        quantity: {
+                            $map: {
+                                input: '$proId',
+                                as: 'proDetails',
+                                in: '$$proDetails.quantity'
+                            },
+                        },
                         _id: 0
                     }
                 },
@@ -402,22 +401,25 @@ module.exports = {
                     }
                 },
             ]).toArray()
-            // console.log("products = ", products);
-            orderedProducts = await products.map(async (element) => {
-                var array = await element.products.map(async product => {
-                    var trimedproduct = {
-                        _id: product._id.toString(),
-                        name: product.name,
-                        price: product.price,
-                        img: product.img,
-                        DeliveryDate: element.DeliveryDate
-                    }
-                    return trimedproduct
+
+            if (products) {
+                var count = 0
+                orderedProducts = products.flatMap((element) => {
+                    var array = element.products.flatMap(product => {
+                        var date = element.DeliveryDate ? (element.DeliveryDate).toDateString() : null
+                        var trimedproduct = {
+                            '_id': product._id.toString(),
+                            'name': product.name,
+                            'quantity': element.quantity[count++],
+                            'price': product.price,
+                            'img': product.img,
+                            'DeliveryDate': date
+                        }
+                        return trimedproduct
+                    })
+                    return array
                 })
-                console.log(array);
-                return array
-            })
-            console.log("orderedProducts = ", orderedProducts[0]);
+            }
             resolve(orderedProducts)
         })
     },
@@ -533,5 +535,58 @@ module.exports = {
             })
             console.log(results);
         })
+    },
+
+    generateInvoice: (orderId, products) => {
+        var modProducts = products.map((product) => {
+            return ({
+                "quantity": product.quantity,
+                "description": product.name,
+                "price": product.price
+            })
+        })
+        var easyinvoice = require('easyinvoice');
+        var fs = require('fs');
+        db.get().collection(collections.ORDER).findOne({ '_id': ObjectId(orderId) }, { projection: { 'userId': 0 } }).then((res) => {
+            var address = res.address
+            var data = {
+                "client": {
+                    "company": address.name,
+                    "address": address.addressLine1,
+                    "zip": address.pincode,
+                    "city": address.city,
+                    "country": address.state
+                },
+                "sender": {
+                    "company": "Sample Corp",
+                    "address": "Sample Street 123",
+                    "zip": "1234 AB",
+                    "city": "Sampletown",
+                    "country": "Samplecountry"
+                },
+                "images": {
+                    logo: fs.readFileSync('./helpers/invoiceLogo.png', 'base64'),
+                },
+                "information": {
+                    // Invoice number
+                    "number": res._id,
+                    // Invoice data
+                    "date": res.Order_date,
+                    // Invoice due date
+                },
+
+                "products": modProducts,
+                "bottomNotice": "Kindly pay your invoice within 15 days.",
+                "settings": {
+                    "currency": "INR",
+                },
+
+            };
+            easyinvoice.createInvoice(data, function (result) {
+                fs.writeFileSync("invoice.pdf", result.pdf, 'base64');
+            });
+        })
+
+        return
     }
 }

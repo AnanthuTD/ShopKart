@@ -4,8 +4,9 @@ const productHelpers = require('../helpers/product-helpers');
 const userHelpers = require('../helpers/user-helpers');
 
 router.get('/', function (req, res, next) {
+    req.session.loginAttempt = false;
     let count = 0
-    console.log(req.session);
+    // console.log(req.session);
     let user = req.session.user_data;
     productHelpers.getAllProducts().then((products) => {
         if (user) {
@@ -21,7 +22,11 @@ router.get('/', function (req, res, next) {
 
 router.get('/login', function (req, res) {
     let user = req.session.user_data;
-    res.render('users/login', { title: 'shop kart', user: user });
+    var message = ""
+    if ( req.session.loginAttempt) {
+       message = "Invalid creditials! try signup :)"
+    }
+    res.render('users/login', { title: 'shop kart', user: user, 'message':message });
 });
 
 router.get('/signup', function (req, res, next) {
@@ -41,6 +46,7 @@ router.post('/user-signup', function (req, res) {
 
 router.post('/user-login', function (req, res) {
     userHelpers.doLogin(req.body).then((response) => {
+        console.log(response.status);
         if (response.status) {
             var data = response
             req.session.logedIn = true;
@@ -52,11 +58,10 @@ router.post('/user-login', function (req, res) {
                 console.log(req.session.history);
                 res.redirect(req.session.history)
             }
-        }
-        else
-            res.redirect('/login')
-    }).catch((err) => {
-        throw (err);
+        }  
+    }).catch(() => {
+        req.session.loginAttempt = true
+       res.redirect('/login')
     })
 })
 
@@ -169,6 +174,7 @@ router.post('/varify_payment', (req, res) => {
         userHelpers.changOrderStatus(orderId)
         console.log("payment success");
         userHelpers.orderDetails(null, orderId).then((products) => {
+            userHelpers.generateInvoice(orderId, products)
             res.render("users/order-status", { user, products })
         })
 

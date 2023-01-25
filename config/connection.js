@@ -1,28 +1,26 @@
 var MongoClient = require('mongodb').MongoClient;
-const collections = require('./collections');
-let promise = require('promise');
-const { resolve, reject } = require('promise');
 const status = {
     db: null
 }
 
-module.exports.connect = function (done) {
-
+module.exports.connect = function (uri, done) {
     //access database :
-    const url = "mongodb://localhost:27017/";
+    const url = 'mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+1.6.1';
     const dbname = 'ShopKart';
-
-    MongoClient.connect(url, function (err, db_url) {
+    console.log("connecting to DB(local)");
+    // MongoClient.connect(url, function (err, db_url) {
+    //     if (err) return done(err);
+    //     console.log("Database connected!");
+    //     status.db = db_url.db(dbname);
+    //     return done()
+    // });
+    const mongoClient = new MongoClient(url);
+    mongoClient.connect(function (err, client) {
         if (err) return done(err);
-
         console.log("Database connected!");
-        status.db = db_url.db(dbname);
-        console.log("Database created!");
-    
+        status.db = client.db(dbname);
         return done()
     });
-
-
 }
 
 module.exports.get = function () {

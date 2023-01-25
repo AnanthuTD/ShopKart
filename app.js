@@ -6,9 +6,8 @@ var fileUpload = require("express-fileupload");
 var dotenv = require("dotenv");
 var handleBars = require("handlebars");
 var helpers = require("handlebars-helpers")();
-
-// var db = require('./config/connection');
-var db = require("./config/CloudConnection");
+var db = require('./config/connection');
+// var db = require("./config/CloudConnection");
 var adminRouter = require("./routes/admin");
 var usersRouter = require("./routes/users");
 var configHelpers = require("./helpers/config-helpers");
@@ -30,11 +29,19 @@ if (result.error) {
   connect();
 }
 
+let dbCount = 0
 async function connect() {
   // session Storage
   require("./config/session")(uri, app);
   db.connect(uri, (err) => {
-    if (err) console.log("!Error connecting to database : " + err);
+    if (err) { 
+      console.log("!Error connecting to database : " + err); 
+      console.log("Re-connecting ...");
+      if (dbCount <= 2) {
+        dbCount++
+        connect() 
+      } 
+    }
     else {
       // creating index for search
       configHelpers.createIndex(db);
