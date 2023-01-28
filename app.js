@@ -14,45 +14,36 @@ var configHelpers = require("./helpers/config-helpers");
 var productHelpers = require("./helpers/product-helpers");
 
 handleBars.registerHelper("inc", (value) => {
-  return parseInt(value) + 1;
+    return parseInt(value) + 1;
 });
 
 const app = express();
 
 // creditials to mongodb atlas
 const result = dotenv.config();
-let uri = "";
+
 if (result.error) {
-  throw result.error;
+    console.log('\ndotenv.config() failed\n');
+    throw result.error;
 } else {
-  uri = process.env.DB_URI;
-  connect();
+    connect();
 }
 
-let dbCount = 0
 async function connect() {
-  // session Storage
-  require("./config/session")(uri, app);
-  db.connect(uri, (err) => {
-    if (err) { 
-      console.log("!Error connecting to database : " + err); 
-      console.log("Re-connecting ...");
-      if (dbCount <= 2) {
-        dbCount++
-        connect() 
-      } 
-    }
-    else {
-      // creating index for search
-      configHelpers.createIndex(db);
-      productHelpers
-        .initDB(db)
-        .then()
-        .catch((err) => {
-          console.error(err);
-        });
-    }
-  });
+    // session Storage
+    require("./config/session")(app);
+    // connecting to dataBase 
+    db.connect().catch(() => process.exit())
+        .then(() => {
+            //creating index for search
+            configHelpers.createIndex(db);
+            productHelpers
+                .initDB(db)
+                .then(()=>console.log('\nGo to ShopKart http://localhost:3000\n'))
+                .catch((err) => {
+                    console.error(err);
+                })
+        })
 }
 
 // view engine setup
@@ -61,14 +52,14 @@ var hbs = require("express-handlebars");
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "hbs");
 app.engine(
-  "hbs",
-  hbs.engine({
-    extname: "hbs",
-    defaultLayout: "layout",
-    layoutsDir: __dirname + "/views/layouts/",
-    partialsDir: __dirname + "/views/partials",
-    userDir: __dirname + "/views/partials",
-  })
+    "hbs",
+    hbs.engine({
+        extname: "hbs",
+        defaultLayout: "layout",
+        layoutsDir: __dirname + "/views/layouts/",
+        partialsDir: __dirname + "/views/partials",
+        userDir: __dirname + "/views/partials",
+    })
 );
 
 app.use(logger("dev"));
@@ -83,18 +74,18 @@ app.use("/", usersRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
-  next(createError(404));
+    next(createError(404));
 });
 
 // error handler
 app.use(function (err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get("env") === "development" ? err : {};
+    // set locals, only providing error in development
+    res.locals.message = err.message;
+    res.locals.error = req.app.get("env") === "development" ? err : {};
 
-  // render the error page
-  res.status(err.status || 500);
-  res.render("error");
+    // render the error page
+    res.status(err.status || 500);
+    res.render("error");
 });
 
 module.exports = app;

@@ -1,22 +1,24 @@
+"use strict";
 var express = require('express');
 var router = express.Router();
 const productHelpers = require('../helpers/product-helpers');
 const userHelpers = require('../helpers/user-helpers');
+const emailHelpers = require('../helpers/emailHelper') 
+
+let cart_count = 0
 
 router.get('/', function (req, res, next) {
     req.session.loginAttempt = false;
-    let count = 0
-    // console.log(req.session);
     let user = req.session.user_data;
     productHelpers.getAllProducts().then((products) => {
         if (user) {
             userHelpers.cartCount(user.details._id).then((response) => {
-                count = response
-                res.render('users/user-main', { title: 'shop kart', products: products, user: user, count });
+                cart_count = response
+                res.render('users/user-main', { title: 'shop kart', products: products, user: user, count:cart_count });
             })
         }
         else
-            res.render('users/user-main', { title: 'shop kart', products, user, count });
+            res.render('users/user-main', { title: 'shop kart', products, user, count:cart_count });
     })
 });
 
@@ -174,10 +176,11 @@ router.post('/varify_payment', (req, res) => {
         userHelpers.changOrderStatus(orderId)
         console.log("payment success");
         userHelpers.orderDetails(null, orderId).then((products) => {
-            userHelpers.generateInvoice(orderId, products)
+            userHelpers.generateInvoice(orderId, products).then(()=>{
+                emailHelpers.sendEmail(orderId)
+            })
             res.render("users/order-status", { user, products })
         })
-
     }).catch((err) => {
         console.error(err);
         res.json({ status: false })

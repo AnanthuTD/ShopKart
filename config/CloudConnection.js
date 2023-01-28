@@ -1,40 +1,38 @@
+'use strict'
 const { MongoClient, ServerApiVersion } = require("mongodb");
+let Promise = require('promise')
 
 const status = {
-  db: null,
+    db: null,
 };
 
-module.exports.connect = async (uri, done) => {
-  // const uri =
-  //     "mongodb+srv://Ananthu:Ananthutdcr7%23@shopcart.2p5tjnh.mongodb.net/?retryWrites=true&w=majority";
-  const dbname = "ShopKart";
+let connectionCount = 0
+module.exports.connect = function () {
+    return new Promise((resolve, reject) => {
+        const dbname = 'ShopKart';
+        let uri = process.env.DB_URI;
 
-  let mongoClient = new MongoClient(uri, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    serverApi: ServerApiVersion.v1,
-  });
-
-module.exports.connect = function (uri, done) {
-    const dbname = 'ShopKart';
-    let mongoClient = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });;
-    try {
-        mongoClient = new MongoClient(uri);
-        console.log('Connecting to MongoDB Atlas cluster...');
-        mongoClient.connect(err => {
-            if (err)
-                return done(err);
+        try {
+            let mongoClient = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
             status.db = mongoClient.db(dbname);
-            console.log('Successfully connected to MongoDB Atlas!');
-            return done();
-        })
+            resolve()
+        }
+        catch (error) {
 
-    } catch (error) {
-        console.error('Connection to MongoDB Atlas failed!', error);
-        process.exit();
-    }
+            if (connectionCount <= 2) {
+                console.warn("Re-connecting ...");
+                connectionCount++
+                this.connect().catch(() => reject()).then(() => resolve())
+            }
+            else {
+                console.error('Connection to MongoDB Atlas failed!', error);
+                reject()
+            }
+        }
+    })
+
 }
 
 module.exports.get = function () {
-  return status.db;
+    return status.db;
 };

@@ -99,11 +99,11 @@ module.exports = {
                         upsert: true
                     }
                 ).then((res) => {
-                    console.log('\n Product Successfully added to cart \n');
+                    // console.log('\n Product Successfully added to cart \n');
                     resolve({ status: true });
                 }).catch((err) => {
                     if (err.name == 'MongoServerError' && err.code === 11000) {
-                        console.log("\n Item already exist in the cart \n");
+                        // console.log("\n Item already exist in the cart \n");
                         db.get().collection(collections.CART)
                             .updateOne(
                                 {
@@ -117,7 +117,7 @@ module.exports = {
                                 }
                             )
                             .catch((err) => {
-                                console.log('increment failed' + err);
+                                console.log('product increment failed' + err);
                             })
 
                         resolve({ status: true });
@@ -537,55 +537,55 @@ module.exports = {
     },
 
     generateInvoice: (orderId, products) => {
-        var modProducts = products.map((product) => {
-            return ({
-                "quantity": product.quantity,
-                "description": product.name,
-                "price": product.price
+        return new Promise((resolve, reject) => {
+
+            var modProducts = products.map((product) => {
+                return ({
+                    "quantity": product.quantity,
+                    "description": product.name,
+                    "price": product.price
+                })
             })
+            var easyinvoice = require('easyinvoice');
+            var fs = require('fs');
+            db.get().collection(collections.ORDER).findOne({ '_id': ObjectId(orderId) }, { projection: { 'userId': 0 } }).then((res) => {
+                var address = res.address
+                var data = {
+                    "client": {
+                        "company": address.name,
+                        "address": address.addressLine1,
+                        "zip": address.pincode,
+                        "city": address.city,
+                        "country": address.state
+                    },
+                    "sender": {
+                        "company": "Sample Corp",
+                        "address": "Sample Street 123",
+                        "zip": "1234 AB",
+                        "city": "Sampletown",
+                        "country": "Samplecountry"
+                    },
+                    "images": {
+                        logo: fs.readFileSync('./public/images/invoiceLogo.png', 'base64'),
+                    },
+                    "information": {
+                        "number": res._id,
+                        "date": res.Order_date,
+                    },
+
+                    "products": modProducts,
+                    "bottomNotice": "Kindly pay your invoice within 15 days.",
+                    "settings": {
+                        "currency": "INR",
+                    },
+
+                };
+                easyinvoice.createInvoice(data, function (result) {
+                    fs.writeFileSync(`./Invoice/${orderId}.pdf`, result.pdf, 'base64');
+                }).then(()=>resolve())
+            })
+           
         })
-        var easyinvoice = require('easyinvoice');
-        var fs = require('fs');
-        db.get().collection(collections.ORDER).findOne({ '_id': ObjectId(orderId) }, { projection: { 'userId': 0 } }).then((res) => {
-            var address = res.address
-            var data = {
-                "client": {
-                    "company": address.name,
-                    "address": address.addressLine1,
-                    "zip": address.pincode,
-                    "city": address.city,
-                    "country": address.state
-                },
-                "sender": {
-                    "company": "Sample Corp",
-                    "address": "Sample Street 123",
-                    "zip": "1234 AB",
-                    "city": "Sampletown",
-                    "country": "Samplecountry"
-                },
-                "images": {
-                    logo: fs.readFileSync('./helpers/invoiceLogo.png', 'base64'),
-                },
-                "information": {
-                    // Invoice number
-                    "number": res._id,
-                    // Invoice data
-                    "date": res.Order_date,
-                    // Invoice due date
-                },
-
-                "products": modProducts,
-                "bottomNotice": "Kindly pay your invoice within 15 days.",
-                "settings": {
-                    "currency": "INR",
-                },
-
-            };
-            easyinvoice.createInvoice(data, function (result) {
-                fs.writeFileSync("invoice.pdf", result.pdf, 'base64');
-            });
-        })
-
-        return
     }
+
 }
