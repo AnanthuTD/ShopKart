@@ -3,7 +3,8 @@ var express = require('express');
 var router = express.Router();
 const productHelpers = require('../helpers/product-helpers');
 const userHelpers = require('../helpers/user-helpers');
-const emailHelpers = require('../helpers/emailHelper') 
+var jwt = require('jsonwebtoken');
+const emailHelpers = require('../helpers/emailHelper')
 
 let cart_count = 0
 
@@ -14,21 +15,21 @@ router.get('/', function (req, res, next) {
         if (user) {
             userHelpers.cartCount(user.details._id).then((response) => {
                 cart_count = response
-                res.render('users/user-main', { title: 'shop kart', products: products, user: user, count:cart_count });
+                res.render('users/user-main', { title: 'shop kart', products: products, user: user, count: cart_count });
             })
         }
         else
-            res.render('users/user-main', { title: 'shop kart', products, user, count:cart_count });
+            res.render('users/user-main', { title: 'shop kart', products, user, count: cart_count });
     })
 });
 
 router.get('/login', function (req, res) {
     let user = req.session.user_data;
     var message = ""
-    if ( req.session.loginAttempt) {
-       message = "Invalid creditials! try signup :)"
+    if (req.session.loginAttempt) {
+        message = "Invalid creditials! try signup :)"
     }
-    res.render('users/login', { title: 'shop kart', user: user, 'message':message });
+    res.render('users/login', { title: 'shop kart', user: user, 'message': message });
 });
 
 router.get('/signup', function (req, res, next) {
@@ -60,10 +61,10 @@ router.post('/user-login', function (req, res) {
                 console.log(req.session.history);
                 res.redirect(req.session.history)
             }
-        }  
+        }
     }).catch(() => {
         req.session.loginAttempt = true
-       res.redirect('/login')
+        res.redirect('/login')
     })
 })
 
@@ -176,7 +177,7 @@ router.post('/varify_payment', (req, res) => {
         userHelpers.changOrderStatus(orderId)
         console.log("payment success");
         userHelpers.orderDetails(null, orderId).then((products) => {
-            userHelpers.generateInvoice(orderId, products).then(()=>{
+            userHelpers.generateInvoice(orderId, products).then(() => {
                 emailHelpers.sendEmail(orderId)
             })
             res.render("users/order-status", { user, products })
@@ -203,4 +204,11 @@ router.post('/search-products', (req, res) => {
     })
 })
 
+router.post('/google-signup', (req, res) => {
+    var credential = req.body
+    var decoded = jwt.decode(credential, {
+        complete: true
+    })
+    console.log(decoded);
+})
 module.exports = router;

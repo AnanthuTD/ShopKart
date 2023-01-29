@@ -35,11 +35,11 @@ async function connect() {
     // connecting to dataBase 
     db.connect().catch(() => process.exit())
         .then(() => {
+            console.log('\nGo to ShopKart http://localhost:3000\n')
             //creating index for search
             configHelpers.createIndex(db);
-            productHelpers
-                .initDB(db)
-                .then(()=>console.log('\nGo to ShopKart http://localhost:3000\n'))
+            productHelpers.initDB(db)
+                .then()
                 .catch((err) => {
                     console.error(err);
                 })

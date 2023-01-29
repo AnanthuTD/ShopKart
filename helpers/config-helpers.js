@@ -7,7 +7,7 @@ module.exports.createIndex = (db) => {
 function createIndex(db) {
     return new promise((resolve, reject) => {
 
-        db.collection(collections.PRODUCT_COLLECTION).dropIndex("productIndex").catch(err => {
+        db.get().collection(collections.PRODUCT_COLLECTION).dropIndex("productIndex").catch(err => {
             if (err.codeName == 'NamespaceNotFound') {
                 db.createCollection(collections.PRODUCT_COLLECTION).catch(err => {
                     console.log("FAILD TO CREATE " + collections.PRODUCT_COLLECTION);
@@ -16,7 +16,7 @@ function createIndex(db) {
                 })
             }
         }).then(() => {
-            db.collection(collections.PRODUCT_COLLECTION).createIndex(
+            db.get().collection(collections.PRODUCT_COLLECTION).createIndex(
                 {
                     name: "text",
                     index: "text",

@@ -41,13 +41,15 @@
                         <p class="text-center fw-bold mx-3 mb-0 text-muted">OR</p>
                     </div>
                     {{!-- signup with google --}}
-                    <div id="g_id_onload" data-client_id="YOUR_GOOGLE_CLIENT_ID"
-                        data-login_uri="https://your.domain/your_login_endpoint" data-auto_prompt="false">
+                    <div id="g_id_onload" data-client_id="72966321408-2hklt18c6avoqcnrhvdodk4v0unujaql.apps.googleusercontent.com"
+                        data-login_uri="/google-signup" data-auto_prompt="true">
                     </div>
-                    <div class="g_id_signin" data-type="standard" data-size="large" data-theme="outline"
+                    <div class="g_id_signin mb-2" data-type="standard" data-size="large" data-theme="outline"
                         data-text="sign_in_with" data-shape="rectangular" data-logo_alignment="left">
                     </div>
+                     {{!-- <div id="buttonDiv"></div>  --}}
                     {{!--  --}}
+
                     <a class="btn btn-primary btn-lg btn-block" style="background-color: #3b5998" href="#!"
                         role="button">
                         <i class="fab fa-facebook-f me-2"></i>Continue with Facebook
@@ -60,3 +62,20 @@
         </div>
     </div>
 </section>
+{{!-- <script>
+        function handleCredentialResponse(response) {
+          console.log("Encoded JWT ID token: " + response.credential);
+        }
+        window.onload = function () {
+          google.accounts.id.initialize({
+            client_id: "72966321408-2hklt18c6avoqcnrhvdodk4v0unujaql.apps.googleusercontent.com",
+            callback: handleCredentialResponse
+          });
+          google.accounts.id.renderButton(
+            document.getElementById("buttonDiv"),
+            { theme: "outline", size: "large" }  // customization attributes
+          );
+          google.accounts.id.prompt(); // also display the One Tap dialog
+        }
+    </script> --}}
+   

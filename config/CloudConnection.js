@@ -8,6 +8,7 @@ const status = {
 
 let connectionCount = 0
 module.exports.connect = function () {
+    console.log('hi');
     return new Promise((resolve, reject) => {
         const dbname = 'ShopKart';
         let uri = process.env.DB_URI;

@@ -6,12 +6,13 @@ const status = {
 let connectionCount = 0
 module.exports.connect = function () {
     return new Promise((resolve, reject) => {
-        const uri = 'mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+1.6.1';
+        // const uri = 'mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+1.6.1';
+        const uri = 'mongodb://localhost:27017'
         const dbname = 'ShopKart';
         try {
             const client = new MongoClient(uri);
             status.db = client.db(dbname);
-            resolve()
+            resolve(status.db)
         }
         catch (error) {
 
@@ -25,9 +26,7 @@ module.exports.connect = function () {
                 reject()
             }
         }
-
     })
-
 }
 
 module.exports.get = function () {
