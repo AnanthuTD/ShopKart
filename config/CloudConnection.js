@@ -2,6 +2,7 @@
 const { MongoClient, ServerApiVersion } = require("mongodb");
 let Promise = require('promise')
 
+
 const status = {
     db: null,
 };
@@ -10,7 +11,7 @@ let connectionCount = 0
 module.exports.connect = function () {
     return new Promise((resolve, reject) => {
         const dbname = 'ShopKart';
-        let uri = process.env.DB_URI;
+        const uri = process.env.DB_URI;
 
         try {
             let mongoClient = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
@@ -36,3 +37,7 @@ module.exports.connect = function () {
 module.exports.get = function () {
     return status.db;
 };
+
+module.exports.uri = () => {
+    return process.env.DB_URI;
+}
