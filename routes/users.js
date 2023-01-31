@@ -3,32 +3,33 @@ var express = require('express');
 var router = express.Router();
 const productHelpers = require('../helpers/product-helpers');
 const userHelpers = require('../helpers/user-helpers');
-const emailHelpers = require('../helpers/emailHelper') 
+const emailHelpers = require('../helpers/emailHelper')
 
 let cart_count = 0
 
 router.get('/', function (req, res, next) {
     req.session.loginAttempt = false;
     let user = req.session.user_data;
+    console.log(user);
     productHelpers.getAllProducts().then((products) => {
         if (user) {
             userHelpers.cartCount(user.details._id).then((response) => {
                 cart_count = response
-                res.render('users/user-main', { title: 'shop kart', products: products, user: user, count:cart_count });
+                res.render('users/user-main', { title: 'shop kart', products: products, user: user, count: cart_count });
             })
         }
         else
-            res.render('users/user-main', { title: 'shop kart', products, user, count:cart_count });
+            res.render('users/user-main', { title: 'shop kart', products, user, count: cart_count });
     })
 });
 
 router.get('/login', function (req, res) {
     let user = req.session.user_data;
     var message = ""
-    if ( req.session.loginAttempt) {
-       message = "Invalid creditials! try signup :)"
+    if (req.session.loginAttempt) {
+        message = "Invalid creditials! try signup :)"
     }
-    res.render('users/login', { title: 'shop kart', user: user, 'message':message });
+    res.render('users/login', { title: 'shop kart', user: user, 'message': message });
 });
 
 router.get('/signup', function (req, res, next) {
@@ -48,7 +49,6 @@ router.post('/user-signup', function (req, res) {
 
 router.post('/user-login', function (req, res) {
     userHelpers.doLogin(req.body).then((response) => {
-        console.log(response.status);
         if (response.status) {
             var data = response
             req.session.logedIn = true;
@@ -57,13 +57,12 @@ router.post('/user-login', function (req, res) {
                 res.redirect('/')
             }
             else {
-                console.log(req.session.history);
                 res.redirect(req.session.history)
             }
-        }  
+        }
     }).catch(() => {
         req.session.loginAttempt = true
-       res.redirect('/login')
+        res.redirect('/login')
     })
 })
 
@@ -136,10 +135,11 @@ router.get('/checkout', (req, res) => {
 
 })
 
-router.get('/place-order', (req, res) => {
+router.get('/place-order', async(req, res) => {
     let user = req.session.user_data;
     var userId = user.details._id
     console.log("\nplace order\n");
+    var email_id = await userHelpers.get_email_id(userId)
     userHelpers.placeOrder(userId).then((response) => {
         if (response.status) {
             userHelpers.orderDetails(null, response.orderId).then((products) => {
@@ -148,8 +148,8 @@ router.get('/place-order', (req, res) => {
                     element.count = response.quantity[i++]
                 });
                 var total = userHelpers.totalPrice(products);
-                userHelpers.generateRazorpay(total, response.orderId).then((response) => {
-                    res.json(response)
+                userHelpers.generateRazorpay(total, response.orderId).then((order) => {
+                    res.json({order, email_id})
                 }).catch((err) => { console.error(err); })
             })
         }
@@ -171,13 +171,19 @@ router.post('/varify_payment', (req, res) => {
     var userId = user.details._id
     var orderDt = req.body;
     var orderId = orderDt['order[receipt]']
+    console.log(orderId);
     userHelpers.varifyPayment(orderDt).then(() => {
+        // removing clearing cart
         userHelpers.removeCart(userId);
+        // changing order status to placed
         userHelpers.changOrderStatus(orderId)
-        console.log("payment success");
+        // retriving order details
         userHelpers.orderDetails(null, orderId).then((products) => {
-            userHelpers.generateInvoice(orderId, products).then(()=>{
-                emailHelpers.sendEmail(orderId)
+            // generating invoice
+            userHelpers.generateInvoice(orderId, products).then(async() => {
+                // sending email
+                var email_id = await userHelpers.get_email_id(userId)
+                emailHelpers.sendEmail(orderId, email_id)
             })
             res.render("users/order-status", { user, products })
         })
@@ -201,6 +207,27 @@ router.post('/search-products', (req, res) => {
         }
         res.render('users/search-products', { layout: false, search: proDt })
     })
+})
+
+router.post('/google-signup', async(req, res) => {
+    const googleHelpers = require('../helpers/google-helpers')
+    let token = req.body
+    googleHelpers.verify(token).then((payload) => {
+        var user = {
+            '_id': payload.sub,
+            'first_name': payload.given_name,
+            'last_name': payload.family_name,
+            'email': payload.email,
+        }
+        userHelpers.signInWithGoogle(user).then((data) => {
+            var temp = {"details" : data, 'status':true}
+            req.session.logedIn = true;
+            req.session.user_data = temp;
+            res.redirect('/')
+        })
+
+    }).catch(err => console.error('sign in with google : ', err))
+    
 })
 
 module.exports = router;

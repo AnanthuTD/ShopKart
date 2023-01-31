@@ -4,5 +4,6 @@ module.exports={
     USER_COLLECTION: 'USERS',
     SESSION: 'SESSIONS',
     CART: 'CART',
-    ORDER: 'ORDER'
+    ORDER: 'ORDER',
+    GOOGLE_USER_COLLECTION: 'GOOGLE_USERS'
 }

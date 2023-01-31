@@ -3,15 +3,17 @@ const nodemailer = require("nodemailer");
 module.exports = { sendEmail }
 let fs = require('fs')
 
-async function sendEmail(order_id) {
+async function sendEmail(order_id, client_email_id) {
+    const Email = process.env.Email
+    const password = process.env.EmailPassword
     try {
         let transporter = nodemailer.createTransport({
             host: 'smtp.gmail.com',
             port: 465,
             secure: true, // true for 465, false for other ports
             auth: {
-                user: 'shopkart.express@gmail.com', // generated ethereal user
-                pass: "cvrjtzuywtbrlavy", // generated ethereal password
+                user: Email, // generated ethereal user
+                pass: password, // generated ethereal password
             },
             
         })
@@ -19,10 +21,10 @@ async function sendEmail(order_id) {
         // send mail with defined transport object
         let info = await transporter.sendMail({
             from: 'shopkart.express@gmail.com', // sender address
-            to: "ananthutd2021@gmail.com", // list of receivers
-            subject: "Hello ✔", // Subject line
-            text: "Hello world?", // plain text body
-            html: "<b>Hello world?</b>", // html body
+            to: client_email_id, // list of receivers
+            subject: "Invoice ✔", // Subject line
+            text: "order placed?", // plain text body
+            html: "<b>Order Placed</b>", // html body
             attachments: [
                 {   
                 filename: 'invoice.pdf',
