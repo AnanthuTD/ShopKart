@@ -40,14 +40,18 @@
                     <div class="divider d-flex align-items-center my-4">
                         <p class="text-center fw-bold mx-3 mb-0 text-muted">OR</p>
                     </div>
-                    {{!-- signup with google --}}
-                    <div id="g_id_onload" data-client_id="72966321408-2hklt18c6avoqcnrhvdodk4v0unujaql.apps.googleusercontent.com"
-                        data-login_uri="/google-signup" data-auto_prompt="false" data-ux_mode="redirect">
+                    <div class="d-flex justify-content-center">
+                        {{!-- signup with google --}}
+                        <div id="g_id_onload"
+                            data-client_id="72966321408-2hklt18c6avoqcnrhvdodk4v0unujaql.apps.googleusercontent.com"
+                            data-login_uri="/google-signup" data-auto_prompt="true" data-ux_mode="redirect">
+                        </div>
+                        <div class="g_id_signin mb-2" data-type="standard" data-size="large" data-theme="outline"
+                            data-text="sign_in_with" data-shape="rectangular" data-logo_alignment="left">
+                        </div>
+                        {{!-- --}}
                     </div>
-                    <div class="g_id_signin mb-2" data-type="standard" data-size="large" data-theme="outline"
-                        data-text="sign_in_with" data-shape="rectangular" data-logo_alignment="left">
-                    </div>
-                    {{!--  --}}
+
                     <a class="btn btn-primary btn-lg btn-block" style="background-color: #3b5998" href="#!"
                         role="button">
                         <i class="fab fa-facebook-f me-2"></i>Continue with Facebook

@@ -10,7 +10,7 @@ $(document).ready(function () {
                 $('#checkout').html(response)
             }
         });
-    }) 
+    })
 
 
 });
@@ -18,14 +18,14 @@ function purchase() {
     $.ajax({
         url: "/place-order",
         method: 'get',
-        success: ({order, email_id}) => {
+        success: ({ order, email_id }) => {
             razorpayPayment(order, email_id)
         }
     })
 }
 
 function razorpayPayment(order, email_id) {
-
+console.log(order);
     var options = {
         "key": "rzp_test_qjRHUAXRk6sVu8", // Enter the Key ID generated from the Dashboard
         "amount": order.amount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
@@ -47,7 +47,7 @@ function razorpayPayment(order, email_id) {
             "color": "#3399cc"
         },
         "handler": function (response) {
-         
+
             varifyPayment(response, order)
         }
     };
@@ -56,7 +56,7 @@ function razorpayPayment(order, email_id) {
 }
 
 function varifyPayment(order_dt, order) {
-   
+
     $.ajax({
         type: "post",
         url: "/varify_payment",
@@ -64,9 +64,11 @@ function varifyPayment(order_dt, order) {
             order_dt,
             order
         },
-        success: function (response) {
-            console.log(response);
-            $('#checkout').html(response)
+        success: function () {
+            $(location).prop('href', '/order-status')
         }
     });
+    
 }
+
+// export default {razorpayPayment, varifyPayment}

@@ -310,7 +310,7 @@ module.exports = {
                 ).then((res) => {
                     resolve({ status: true })
                 }).catch((err) => {
-                    console.log(err);
+                    console.error(err);
                 })
         })
     },

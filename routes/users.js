@@ -135,7 +135,7 @@ router.get('/checkout', (req, res) => {
 
 })
 
-router.get('/place-order', async(req, res) => {
+router.get('/place-order', async (req, res) => {
     let user = req.session.user_data;
     var userId = user.details._id
     console.log("\nplace order\n");
@@ -149,7 +149,7 @@ router.get('/place-order', async(req, res) => {
                 });
                 var total = userHelpers.totalPrice(products);
                 userHelpers.generateRazorpay(total, response.orderId).then((order) => {
-                    res.json({order, email_id})
+                    res.json({ order, email_id })
                 }).catch((err) => { console.error(err); })
             })
         }
@@ -180,12 +180,13 @@ router.post('/varify_payment', (req, res) => {
         // retriving order details
         userHelpers.orderDetails(null, orderId).then((products) => {
             // generating invoice
-            userHelpers.generateInvoice(orderId, products).then(async() => {
+            userHelpers.generateInvoice(orderId, products).then(async () => {
                 // sending email
                 var email_id = await userHelpers.get_email_id(userId)
                 emailHelpers.sendEmail(orderId, email_id)
             })
-            res.render("users/order-status", { user, products })
+            req.session.products = products
+            res.json()
         })
     }).catch((err) => {
         console.error(err);
@@ -209,7 +210,7 @@ router.post('/search-products', (req, res) => {
     })
 })
 
-router.post('/google-signup', async(req, res) => {
+router.post('/google-signup', async (req, res) => {
     const googleHelpers = require('../helpers/google-helpers')
     let token = req.body
     googleHelpers.verify(token).then((payload) => {
@@ -220,14 +221,54 @@ router.post('/google-signup', async(req, res) => {
             'email': payload.email,
         }
         userHelpers.signInWithGoogle(user).then((data) => {
-            var temp = {"details" : data, 'status':true}
+            var temp = { "details": data, 'status': true }
             req.session.logedIn = true;
             req.session.user_data = temp;
             res.redirect('/')
         })
 
     }).catch(err => console.error('sign in with google : ', err))
-    
+
 })
 
+router.get('/product/:product_id', (req, res) => {
+    var product_id = req.params.product_id
+    let user = req.session.user_data;
+    // console.log('product id = ', product_id);
+    productHelpers.getProduct(product_id).then((product_details) => {
+        console.log(product_details);
+        res.render('users/product', { product_details, user })
+    })
+})
+
+router.get('/buy-now/:product_id', (req, res) => {
+    var product_id = req.params.product_id
+    let user = req.session.user_data;
+    var user_id = user.details._id
+    productHelpers.buyNow(product_id, user_id).then((response) => {
+        if (response.status) {
+            userHelpers.orderDetails(null, response.orderId).then((products) => {
+                var i = 0;
+                products.forEach(element => {
+                    element.count = response.quantity[i++] || 1
+                })
+                var total = userHelpers.totalPrice(products);
+                userHelpers.generateRazorpay(total, response.orderId).then(async(order) => {
+                    var email_id = await userHelpers.get_email_id(user_id)
+                    res.json({ order, email_id })
+                }).catch((err) => { console.error(err); })
+            })
+        }
+        else {
+            console.log("\n Faild to place order \n");
+        }
+    })
+})
+
+router.get('/order-status',(req, res)=>{
+    let user = req.session.user_data;
+    var products = req.session.products
+    res.render("users/order-status", { user, products })
+
+})
 module.exports = router;

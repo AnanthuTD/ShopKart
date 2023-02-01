@@ -113,7 +113,7 @@
 
     <div class="row">
         {{#each products }}
-        <div class="col-xxl-2 col-xl-3 col-md-4 col-sm-6 p-2">
+        <div class="col-xxl-2 col-xl-3 col-md-4 col-sm-6 p-2" onclick="location.href = '/product/{{this._id}}'">
             <div class="d-flex justify-content-center flex-column shadow rounded p-1">
                 <div class="d-flex justify-content-center">
                     <img src="/products/{{this.img}}" alt="Card image cap" style="height: 10rem; max-width: 100%;" />
