@@ -4,23 +4,27 @@ var router = express.Router();
 const productHelpers = require('../helpers/product-helpers');
 const userHelpers = require('../helpers/user-helpers');
 const emailHelpers = require('../helpers/emailHelper')
-
+const cartHelpers = require('../helpers/cart_helpers')
+const order_helpers = require('../helpers/order_helpers')
+const payment_helpers = require('../helpers/payment_helpers')
+const common_helpers = require('../helpers/common_helpers');
 let cart_count = 0
 
 router.get('/', function (req, res, next) {
     req.session.loginAttempt = false;
     let user = req.session.user_data;
-    console.log(user);
+    console.error("hi");
     productHelpers.getAllProducts().then((products) => {
+        console.log(products);
         if (user) {
-            userHelpers.cartCount(user.details._id).then((response) => {
+            cartHelpers.cartCount(user.details._id).then((response) => {
                 cart_count = response
                 res.render('users/user-main', { title: 'shop kart', products: products, user: user, count: cart_count });
             })
         }
         else
             res.render('users/user-main', { title: 'shop kart', products, user, count: cart_count });
-    })
+    }).catch(err => console.error('error while fetching products'))
 });
 
 router.get('/login', function (req, res) {
@@ -75,7 +79,7 @@ router.get('/cart', (req, res) => {
     req.session.history = req.originalUrl;
     let user = req.session.user_data;
     if (user) {
-        userHelpers.getAllProducts(user.details._id).then((products) => {
+        cartHelpers.getAllProducts(user.details._id).then((products) => {
             var itemCount = products.length;
             var totalPrice = userHelpers.totalPrice(products);
             res.render('users/cart', { products, user, cart: false, no_header: true, cartId: user.details._id, itemCount, totalPrice })
@@ -94,7 +98,7 @@ router.get('/cart', (req, res) => {
 router.get('/add-to-cart/:proId', (req, res) => {
     let user = req.session.user_data;
     var proId = req.params.proId;
-    userHelpers.addProduct(user.details._id, proId).then((status) => {
+    productHelpers.addProduct(user.details._id, proId).then((status) => {
         res.json({ status: status.status })
     })
 })
@@ -102,8 +106,8 @@ router.get('/add-to-cart/:proId', (req, res) => {
 router.get('/remove-product/:proId', (req, res) => {
     let user = req.session.user_data;
     var proId = req.params.proId;
-    userHelpers.removeProduct(proId, user.details._id, proId).then((stat) => {
-        userHelpers.getAllProducts(user.details._id).then((products) => {
+    productHelpers.removeProduct(proId, user.details._id, proId).then((stat) => {
+        cartHelpers.getAllProducts(user.details._id).then((products) => {
             res.render('users/cart', { cart: true, layout: false, products, no_header: true })
         })
     })
@@ -112,7 +116,7 @@ router.get('/remove-product/:proId', (req, res) => {
 router.get('/qty/:cartId/:proId', (req, res) => {
     var cartId = req.params.cartId;
     var proId = req.params.proId;
-    userHelpers.decCartCount(cartId, proId).then((response) => {
+    cartHelpers.decCartCount(cartId, proId).then((response) => {
     })
     res.json({ status: true })
 })
@@ -128,7 +132,7 @@ router.post("/checkout-address", (req, res) => {
 
 router.get('/checkout', (req, res) => {
     let user = req.session.user_data;
-    userHelpers.getAllProducts(user.details._id).then((products) => {
+    cartHelpers.getAllProducts(user.details._id).then((products) => {
         var total = userHelpers.totalPrice(products);
         res.render('users/checkout', { user, total, products })
     })
@@ -139,16 +143,16 @@ router.get('/place-order', async (req, res) => {
     let user = req.session.user_data;
     var userId = user.details._id
     console.log("\nplace order\n");
-    var email_id = await userHelpers.get_email_id(userId)
-    userHelpers.placeOrder(userId).then((response) => {
+    var email_id = await common_helpers.get_email_id(userId)
+    order_helpers.placeOrder(userId).then((response) => {
         if (response.status) {
-            userHelpers.orderDetails(null, response.orderId).then((products) => {
+            order_helpers.orderDetails(null, response.orderId).then((products) => {
                 var i = 0;
                 products.forEach(element => {
                     element.count = response.quantity[i++]
                 });
                 var total = userHelpers.totalPrice(products);
-                userHelpers.generateRazorpay(total, response.orderId).then((order) => {
+                payment_helpers.generateRazorpay(total, response.orderId).then((order) => {
                     res.json({ order, email_id })
                 }).catch((err) => { console.error(err); })
             })
@@ -161,7 +165,7 @@ router.get('/place-order', async (req, res) => {
 router.get('/orders', (req, res) => {
     let user = req.session.user_data;
     var userId = user.details._id
-    userHelpers.orderDetails(userId, null).then((products) => {
+    order_helpers.orderDetails(userId, null).then((products) => {
         res.render('users/orders', { user, products })
     })
 })
@@ -172,21 +176,22 @@ router.post('/varify_payment', (req, res) => {
     var orderDt = req.body;
     var orderId = orderDt['order[receipt]']
     console.log(orderId);
-    userHelpers.varifyPayment(orderDt).then(() => {
+    payment_helpers.varifyPayment(orderDt).then(() => {
         // removing clearing cart
-        userHelpers.removeCart(userId);
+        cartHelpers.removeCart(userId);
         // changing order status to placed
-        userHelpers.changOrderStatus(orderId)
+        order_helpers.changOrderStatus(orderId)
         // retriving order details
-        userHelpers.orderDetails(null, orderId).then((products) => {
+        order_helpers.orderDetails(null, orderId).then((products) => {
             // generating invoice
-            userHelpers.generateInvoice(orderId, products).then(async () => {
+            order_helpers.generateInvoice(orderId, products).then(async () => {
                 // sending email
-                var email_id = await userHelpers.get_email_id(userId)
+                var email_id = await  common_helpers.get_email_id(userId)
                 emailHelpers.sendEmail(orderId, email_id)
             })
             req.session.products = products
-            res.json()
+            console.log(products);
+            res.json({})
         })
     }).catch((err) => {
         console.error(err);
@@ -197,7 +202,7 @@ router.post('/varify_payment', (req, res) => {
 router.post('/search-products', (req, res) => {
     console.log("search");
     var search = req.body.search
-    userHelpers.searchProducts(search).then((response) => {
+    productHelpers.searchProducts(search).then((response) => {
         var proDt = [], i = 0;
         if (response != []) {
             response.forEach(element => {
@@ -253,7 +258,7 @@ router.get('/buy-now/:product_id', (req, res) => {
                     element.count = response.quantity[i++] || 1
                 })
                 var total = userHelpers.totalPrice(products);
-                userHelpers.generateRazorpay(total, response.orderId).then(async(order) => {
+                userHelpers.generateRazorpay(total, response.orderId).then(async (order) => {
                     var email_id = await userHelpers.get_email_id(user_id)
                     res.json({ order, email_id })
                 }).catch((err) => { console.error(err); })
@@ -265,7 +270,7 @@ router.get('/buy-now/:product_id', (req, res) => {
     })
 })
 
-router.get('/order-status',(req, res)=>{
+router.get('/order-status', (req, res) => {
     let user = req.session.user_data;
     var products = req.session.products
     res.render("users/order-status", { user, products })

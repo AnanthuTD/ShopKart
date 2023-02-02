@@ -1,36 +1,24 @@
+'use strict'
 // accessing db
 var db;
-
-var collections = require('../config/collections');
-
-var configHelpers = require('../helpers/config-helpers')
 const { ObjectId } = require('mongodb');
-var promise = require('promise');
-
-function checkObjectId(id) {
-    var objId
-    try {
-        objId = ObjectId(id)
-    }
-    catch (error) {
-        objId = id
-    }
-    return (objId)
-}
-
+var collections = require('../config/collections');
+var configHelpers = require('../helpers/config-helpers')
+let Promise = require('promise');
+const {checkObjectId, get_email_id} = require('./common_helpers')
 
 module.exports = {
 
     initDB: function (DB) {
 
-        return new promise((resolve, reject) => {
+        return new Promise((resolve, reject) => {
             db = DB.get();
             resolve();
         })
     },
     addProduct: async (product) => {
 
-        return new promise((resolve, reject) => {
+        return new Promise((resolve, reject) => {
 
             db.collection(collections.PRODUCT_COLLECTION).insertOne(product).then((data) => {
 
@@ -55,7 +43,7 @@ module.exports = {
 
     getAllProducts: () => {
 
-        return new promise(async function (resolve, reject) {
+        return new Promise(async function (resolve, reject) {
             let products = await db.collection(collections.PRODUCT_COLLECTION).find().toArray();
             resolve(products);
         });
@@ -63,7 +51,7 @@ module.exports = {
 
     deleteProduct: (proId) => {
 
-        return new promise((resolve, reject) => {
+        return new Promise((resolve, reject) => {
 
             db.collection(collections.PRODUCT_COLLECTION).deleteOne({ _id: ObjectId(proId) }).then((res) => {
                 console.log('\n.....Product deleted successfully.....\n');
@@ -78,7 +66,7 @@ module.exports = {
 
     getProduct: (proId) => {
 
-        return new promise(async (resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
 
             db.collection(collections.PRODUCT_COLLECTION).findOne({ _id: ObjectId(proId) }).then((res) => {
 
@@ -92,7 +80,7 @@ module.exports = {
 
     editProduct: (product, id) => {
 
-        return new promise((resolve, reject) => {
+        return new Promise((resolve, reject) => {
 
             db.collection(collections.PRODUCT_COLLECTION).updateOne({ _id: ObjectId(id) }, { $set: product }).then((response) => {
 
@@ -103,7 +91,7 @@ module.exports = {
     },
 
     buyNow: (product_id, user_id) => {
-        return new promise(async (resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             user_id = await checkObjectId(user_id)
             var order = await db.collection(collections.USER_COLLECTION).aggregate([
                 {
@@ -142,5 +130,104 @@ module.exports = {
         })
 
     },
+
+    addProduct: async (userId, proId) => {
+        userId = await checkObjectId(userId)
+        return await new Promise(async (resolve, reject) => {
+            db.collection(collections.CART)
+                .updateOne(
+                    {
+                        _id: userId,
+                        'cart.proId':
+                        {
+                            $not:
+                            {
+                                $eq:
+                                    ObjectId(proId)
+                            }
+                        }
+                    },
+                    {
+                        $push:
+                        {
+                            cart:
+                            {
+                                proId:
+                                    ObjectId(proId), quantity: 1
+                            }
+                        }
+                    },
+                    {
+                        upsert: true
+                    }
+                ).then((res) => {
+                    // console.log('\n Product Successfully added to cart \n');
+                    resolve({ status: true });
+                }).catch((err) => {
+                    if (err.name == 'MongoServerError' && err.code === 11000) {
+                        // console.log("\n Item already exist in the cart \n");
+                        db.collection(collections.CART)
+                            .updateOne(
+                                {
+                                    _id: userId, 'cart.proId': ObjectId(proId)
+                                },
+                                {
+                                    $inc:
+                                    {
+                                        'cart.$.quantity': 1
+                                    }
+                                }
+                            )
+                            .catch((err) => {
+                                console.warn('product increment failed' + err);
+                            })
+
+                        resolve({ status: true });
+                    }
+                    else {
+                        throw new Error(err);
+                    }
+                })
+        });
+    },
+
+    removeProduct: async (proId, userId) => {
+        userId = await checkObjectId(userId)
+        return new Promise((resolve, reject) => {
+            db.collection(collections.CART)
+                .updateOne(
+                    {
+                        "_id": userId
+                    },
+                    {
+                        $pull:
+                        {
+                            'cart':
+                            {
+                                'proId': ObjectId(proId)
+                            }
+                        }
+                    }
+                ).then((res) => {
+
+                    resolve({ status: true });
+
+                }).catch((err) => {
+
+                    console.log('\n......Remove product faild......\n' + err);
+                    reject({ status: false })
+                })
+        })
+    },
+
+    searchProducts: (search) => {
+        return new Promise(async (resolve, reject) => {
+            var query = { $text: { $search: search } };
+            var result = await db.get().collection(collections.PRODUCT_COLLECTION).find(query).toArray();
+            resolve(result)
+        })
+    },
+
+   
 
 }
