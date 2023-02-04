@@ -6,13 +6,14 @@ var fileUpload = require("express-fileupload");
 var dotenv = require("dotenv");
 var handleBars = require("handlebars");
 var helpers = require("handlebars-helpers")();
-// var db = require('./config/connection');
-var db = require("./config/CloudConnection");
+// var Cloud_db = require('./config/connection');
+var Local_db = require("./config/CloudConnection");
 var adminRouter = require("./routes/admin");
 var usersRouter = require("./routes/users");
 var configHelpers = require("./helpers/config-helpers");
 // var productHelpers = require("./helpers/product-helpers");
 const { Initialize } = require("./config/initialize_db");
+let DB
 
 
 handleBars.registerHelper("inc", (value) => {
@@ -23,24 +24,26 @@ const app = express();
 
 // creditials to mongodb atlas
 const result = dotenv.config();
-
+let uri
 if (result.error) {
     console.log('\ndotenv.config() failed\n');
     throw result.error;
 } else {
+    uri = Local_db ? process.env.LOCAL_DB : process.env.DB_URI
+    DB = Local_db || Cloud_db
     connect();
 }
 
 async function connect() {
     // session Storage
-    require("./config/session")(app);
+    require("./config/session")(app, uri);
     // connecting to dataBase 
-    db.connect().catch(() => process.exit())
+    DB.connect().catch(() => process.exit())
         .then(() => {
             console.log("\x1b[36m%s\x1b[0m",'\nGo to ShopKart \x1b[4mhttp://localhost:3000\n')
             //creating index for search
-            configHelpers.createIndex(db);
-            Initialize(db);
+            configHelpers.createIndex(DB);
+            Initialize(DB);
         })
 }
 
