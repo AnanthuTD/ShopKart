@@ -13,6 +13,7 @@ module.exports = {
 
         return new Promise((resolve, reject) => {
             db = DB.get();
+            // console.log('product ', db);
             resolve();
         })
     },

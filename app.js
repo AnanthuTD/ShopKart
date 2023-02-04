@@ -6,12 +6,14 @@ var fileUpload = require("express-fileupload");
 var dotenv = require("dotenv");
 var handleBars = require("handlebars");
 var helpers = require("handlebars-helpers")();
-var db = require('./config/connection');
-// var db = require("./config/CloudConnection");
+// var db = require('./config/connection');
+var db = require("./config/CloudConnection");
 var adminRouter = require("./routes/admin");
 var usersRouter = require("./routes/users");
 var configHelpers = require("./helpers/config-helpers");
-var productHelpers = require("./helpers/product-helpers");
+// var productHelpers = require("./helpers/product-helpers");
+const { Initialize } = require("./config/initialize_db");
+
 
 handleBars.registerHelper("inc", (value) => {
     return parseInt(value) + 1;
@@ -38,15 +40,13 @@ async function connect() {
             console.log("\x1b[36m%s\x1b[0m",'\nGo to ShopKart \x1b[4mhttp://localhost:3000\n')
             //creating index for search
             configHelpers.createIndex(db);
-            productHelpers.initDB(db)
-                .catch((err) => {
-                    console.error(err);
-                })
+            Initialize(db);
         })
 }
 
 // view engine setup
 var hbs = require("express-handlebars");
+
 
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "hbs");

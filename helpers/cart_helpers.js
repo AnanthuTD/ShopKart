@@ -1,16 +1,24 @@
 'use strict'
+let db;
 const collections = require('../config/collections');
 let promise = require('promise');
 const { ObjectId } = require('mongodb');
 const {checkObjectId, get_email_id} = require('./common_helpers')
-const db = require('../config/connection');
+
 
 module.exports = {
+    initDB: function (DB) {
 
+        return new Promise((resolve, reject) => {
+            db = DB.get();
+            // console.log(db);
+            resolve();
+        })
+    },
     cartCount: async (userId) => {
         userId = await checkObjectId(userId)
         return new promise(async (resolve, reject) => {
-            var count = await db.get().collection(collections.CART).
+            var count = await db.collection(collections.CART).
                 aggregate([
                     {
                         $match:
@@ -31,7 +39,7 @@ module.exports = {
     decCartCount: (cartId, proId) => {
         cartId = checkObjectId(cartId)
         return new promise((resolve, reject) => {
-            db.get().collection(collections.CART).
+            db.collection(collections.CART).
                 updateOne(
                     {
                         _id: cartId, 'cart.proId': ObjectId(proId)
@@ -50,14 +58,14 @@ module.exports = {
         })
     },
     removeCart: (id) => {
-        db.get().collection(collections.CART).deleteOne({ _id: checkObjectId(id) })
+        db.collection(collections.CART).deleteOne({ _id: checkObjectId(id) })
     },
 
     getAllProducts: async (userId) => {
         userId = await checkObjectId(userId)
         console.log(userId);
         return new Promise(async (resolve, reject) => {
-            var products = await db.get().collection(collections.CART).aggregate([
+            var products = await db.collection(collections.CART).aggregate([
 
                 {
                     $match: {
@@ -101,7 +109,7 @@ module.exports = {
            
             if (products.length != 0) {
                 products = products[0].products;
-                var cart = await db.get().collection(collections.CART).aggregate([
+                var cart = await db.collection(collections.CART).aggregate([
                     {
                         $match: {
                             _id: userId

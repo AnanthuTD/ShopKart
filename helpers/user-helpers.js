@@ -1,16 +1,21 @@
 "use strict"
 // var db = require('../config/CloudConnection')
-const db = require('../config/connection');
+var db;
 var bcrypt = require('bcrypt');
 const collections = require('../config/collections');
 let promise = require('promise');
 const {checkObjectId, get_email_id} = require('./common_helpers')
 
-
-
-
-
 module.exports = {
+    initDB: function (DB) {
+
+        return new Promise((resolve, reject) => {
+            db = DB.get();
+            // console.log(db);
+            resolve();
+        })
+    },
+
     varify: (req) => {
         user = req.session.user_data
         if (user) {
@@ -18,22 +23,23 @@ module.exports = {
         }
         return false
     },
+
     doSignup: (userData) => {
         return new promise(async (resolve, reject) => {
             userData.password = await bcrypt.hash(userData.password, 12);
             userData.address1 = null;
             console.log(userData);
-            if (await db.get().collection(collections.USER_COLLECTION).findOne({ email: userData.email })) {
+            if (await db.collection(collections.USER_COLLECTION).findOne({ email: userData.email })) {
                 resolve({ status: false })
             }
             else {
-                db.get().collection(collections.USER_COLLECTION).insertOne(userData).then((data) => {
+                db.collection(collections.USER_COLLECTION).insertOne(userData).then((data) => {
 
                     let cartObj = {
                         _id: data.insertedId,
                         cart: []
                     }
-                    db.get().collection(collections.CART).insertOne(cartObj)
+                    db.collection(collections.CART).insertOne(cartObj)
                     resolve({ status: true });
                     // console.log("success");
                 })
@@ -43,17 +49,17 @@ module.exports = {
 
     signInWithGoogle: (userData) => {
         return new Promise(async (resolve, reject) => {
-            db.get().collection(collections.USER_COLLECTION).findOne({ _id: userData._id }).then((res) => {
+            db.collection(collections.USER_COLLECTION).findOne({ _id: userData._id }).then((res) => {
                 if (res) {
                     resolve(res)
                 }
                 else {
-                    db.get().collection(collections.USER_COLLECTION).insertOne(userData).then((data) => {
+                    db.collection(collections.USER_COLLECTION).insertOne(userData).then((data) => {
                         let cartObj = {
                             _id: data.insertedId,
                             cart: []
                         }
-                        db.get().collection(collections.CART).insertOne(cartObj)
+                        db.collection(collections.CART).insertOne(cartObj)
                         resolve(userData);
                         // console.log("success");
                     })
@@ -65,7 +71,7 @@ module.exports = {
     doLogin: (userData) => {
         return new promise((resolve, reject) => {
             let response = {};
-            db.get().collection(collections.USER_COLLECTION).findOne({ email: userData.email }).then((user) => {
+            db.collection(collections.USER_COLLECTION).findOne({ email: userData.email }).then((user) => {
                 if (!user)
                     return reject(response);
                 bcrypt.compare(userData.password, user.password).then((flag) => {
@@ -98,7 +104,7 @@ module.exports = {
 
     addAddress: (address) => {
         return new promise((resolve, reject) => {
-            db.get().collection(collections.USER_COLLECTION).updateOne(
+            db.collection(collections.USER_COLLECTION).updateOne(
                 {
                     _id: checkObjectId(address.user_id)
                 },

@@ -10,12 +10,11 @@ const payment_helpers = require('../helpers/payment_helpers')
 const common_helpers = require('../helpers/common_helpers');
 let cart_count = 0
 
+
 router.get('/', function (req, res, next) {
     req.session.loginAttempt = false;
     let user = req.session.user_data;
-    console.error("hi");
     productHelpers.getAllProducts().then((products) => {
-        console.log(products);
         if (user) {
             cartHelpers.cartCount(user.details._id).then((response) => {
                 cart_count = response

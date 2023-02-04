@@ -3,17 +3,24 @@ const collections = require('../config/collections');
 let promise = require('promise');
 const { ObjectId } = require('mongodb');
 const {checkObjectId, get_email_id} = require('./common_helpers')
-const db = require('../config/connection');
+let db
 const { randomInt } = require('node:crypto');
 
 let orderedProducts = []
 
 module.exports =
 {
+    initDB: function (DB) {
+        return new Promise((resolve, reject) => {
+            db = DB.get();
+            // console.log(db);
+            resolve();
+        })
+    },
     placeOrder: (user_id) => {
         return new promise(async (resolve, reject) => {
             user_id = await checkObjectId(user_id)
-            var order = await db.get().collection(collections.CART).aggregate([
+            var order = await db.collection(collections.CART).aggregate([
                 {
                     $match: {
                         _id: user_id
@@ -60,7 +67,7 @@ module.exports =
                 quantity[i++] = element.quantity
             });
             var orderId = ''
-            await db.get().collection(collections.ORDER).insertOne(order).catch((err) => {
+            await db.collection(collections.ORDER).insertOne(order).catch((err) => {
                 console.error(err);
             }).then((res) => {
                 orderId = (res.insertedId)
@@ -81,7 +88,7 @@ module.exports =
     orderDetails: (user_id = null, orderId = null) => {
         return new promise(async (resolve, reject) => {
             user_id = await checkObjectId(user_id)
-            var products = await db.get().collection(collections.ORDER).aggregate([
+            var products = await db.collection(collections.ORDER).aggregate([
                 {
                     $match: {
                         $or: [
@@ -150,7 +157,7 @@ module.exports =
     changOrderStatus: async (orderId) => {
         var incDate = randomInt(10)
         return new promise(async (resolve, reject) => {
-            await db.get().collection(collections.ORDER).aggregate(
+            await db.collection(collections.ORDER).aggregate(
                 [
                     {
                         $match:
@@ -201,7 +208,7 @@ module.exports =
             })
             var easyinvoice = require('easyinvoice');
             var fs = require('fs');
-            db.get().collection(collections.ORDER).findOne({ '_id': ObjectId(orderId) }, { projection: { 'userId': 0 } }).then((res) => {
+            db.collection(collections.ORDER).findOne({ '_id': ObjectId(orderId) }, { projection: { 'userId': 0 } }).then((res) => {
                 var address = res.address
                 var data = {
                     "client": {
