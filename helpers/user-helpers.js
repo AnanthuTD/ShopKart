@@ -1,5 +1,4 @@
 "use strict"
-// var db = require('../config/CloudConnection')
 var db;
 var bcrypt = require('bcrypt');
 const collections = require('../config/collections');

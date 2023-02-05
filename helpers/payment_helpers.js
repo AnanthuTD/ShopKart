@@ -7,7 +7,7 @@ var instance = new Razorpay({
 })
 let RazorpayOrderId = ''
 const {checkObjectId, get_email_id} = require('./common_helpers')
-const db = require('../config/connection');
+
 
 module.exports =
 {
