@@ -21,7 +21,7 @@ This project is an e-commerce website that closely resembles the functionality a
 # How to Use
 1. Clone the repository:
 ```
-$ git clone https://github.com/your-username/flipkart-clone.git 
+$ git clone https://github.com/AnanthuTD/ShopKart.git 
 ```
 2. 
 ```
