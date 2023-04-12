@@ -29,14 +29,16 @@ This project is an e-commerce website that closely resembles the functionality a
 1. Clone the repository:```
 2. $ git clone https://github.com/your-username/flipkart-clone.git 
 3. ```
-4. ```$ cd flipkart-clone ```
-5. Install dependencies: ```$ npm install ```
-6. Set up environment variables:
-7. GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET for Google OAuth API
-8. RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET for Razorpay Payment Gateway
-9. MONGODB_URI for MongoDB database connection
-10. Run the project: ```$ npm start ```
-11. Open your browser and navigate to http://localhost:3000
+4. ```
+5. $ cd flipkart-clone 
+6. ```
+7. Install dependencies: ```$ npm install ```
+8. Set up environment variables:
+9. GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET for Google OAuth API
+10. RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET for Razorpay Payment Gateway
+11. MONGODB_URI for MongoDB database connection
+12. Run the project: ```$ npm start ```
+13. Open your browser and navigate to http://localhost:3000
 # Contributing
 If you would like to contribute to this project, feel free to fork the repository and submit a pull request. All contributions are welcome!
 # Contributors
