@@ -1,5 +1,5 @@
 
-# Flipkart Clone E-commerce Website
+# ShopKart E-commerce Website
 This project is an e-commerce website that closely resembles the functionality and design of Flipkart. It is built using Node.js, Express, HBS, and MongoDB.
 
 # Features
