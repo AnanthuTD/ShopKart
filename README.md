@@ -25,7 +25,7 @@ $ git clone https://github.com/AnanthuTD/ShopKart.git
 ```
 2. 
 ```
-$ cd flipkart-clone 
+$ cd ShopKart
 ```
 3. Install dependencies: 
 ```
