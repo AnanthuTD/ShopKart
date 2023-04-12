@@ -25,7 +25,9 @@ This project is an e-commerce website that closely resembles the functionality a
 <div id="copy-target">
   This text will be copied to the clipboard
 </div>
-
+```
+npm install
+```
 1. Clone the repository:```
 2. $ git clone https://github.com/your-username/flipkart-clone.git 
 3. ```
